@@ -19,13 +19,13 @@ public class AddUsers {
             System.out.println("Opened database successfully");
             //Execute a query
             stmt = c.createStatement();
+            System.out.println("Name: ");
+            String name= sc.nextLine();
             System.out.println("Username: ");
             String userName= sc.nextLine();
-            System.out.println("Email: ");
-            String userEmail= sc.nextLine();
             System.out.println("Password: ");
             String userPassword = sc.nextLine();
-            String sql = "INSERT INTO USERS (NAME, EMAIL, PASSWORD)" +"VALUES ('" + userName + "','" + userEmail+ "','" + userPassword+"');";
+            String sql = "INSERT INTO USERS (NAME, USERNAME, PASSWORD)" +"VALUES ('" + name + "','" + userName+ "','" + userPassword+"');";
             stmt.executeUpdate(sql);
             stmt.close();
             c.commit();

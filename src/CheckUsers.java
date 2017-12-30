@@ -17,15 +17,15 @@ public class CheckUsers {
             System.out.println("Opened database successfully");
             //Execute a query
             stmt = c.createStatement();
-            ResultSet rs = stmt.executeQuery( "SELECT * FROM USERS WHERE EMAIL = 'shivaniisamazing@hotmail.com';" );
+            ResultSet rs = stmt.executeQuery( "SELECT * FROM USERS WHERE USERNAME = 'shivaniisamazing@hotmail.com';" );
             while (rs.next()){
                 int id = rs.getInt("id");
                 String  name = rs.getString("name");
-                String email = rs.getString("email");
+                String username = rs.getString("username");
                 String password = rs.getString("password");
                 System.out.println( "id = " + id );
                 System.out.println( "NAME = " + name );
-                System.out.println( "EMAIL = " + email );
+                System.out.println( "USERNAME = " + username );
                 System.out.println( "PASSWORD = " + password );
                 System.out.println();
             }
