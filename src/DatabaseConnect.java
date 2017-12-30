@@ -18,7 +18,7 @@ public class DatabaseConnect {
             String sql = "CREATE TABLE USERS" +
                     "(id SERIAL PRIMARY KEY  NOT NULL," +
                     "NAME TEXT NOT NULL," +
-                    "EMAIL VARCHAR(255) UNIQUE NOT NULL," +
+                    "USERNAME VARCHAR(255) UNIQUE NOT NULL," +
                     "PASSWORD VARCHAR(20))";
             stmt.executeUpdate(sql);
             stmt.close();
