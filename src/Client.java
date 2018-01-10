@@ -74,7 +74,7 @@ class ClientWriter implements Runnable {
             String[] successMessage = serverStream.readUTF().split(" ");
             //Checks first postion equals 220
             if (successMessage[0].equals("220")) {
-                System.out.println("Do you want to 1. Sign up or 2. Sign in? Please choose a number");
+                System.out.println("Do you want to 1. Sign up and login or 2. Login? 3.QUIT? Please choose a number");
                 int input = console.nextInt();
                 boolean check = false;
 
