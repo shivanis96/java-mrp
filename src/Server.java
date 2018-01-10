@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Server {
-    int portNumber = 15882;
+    private int portNumber = 15882;
     ServerSocket serverSoc = null;
     //Each client has a socketManager and the ArrayList adds a socketManager for the particular client on the list
     ArrayList<socketManager> clients = null;
@@ -20,12 +20,12 @@ public class Server {
         Thread shThread = new Thread(sh);
         shThread.start();
         //Allows user to quit by inputing 9
-        System.out.println("Please enter 9 to close the server");
+        System.out.println("Please enter 'Quit' to close the server");
         Scanner scan2 = new Scanner(System.in);
-        int scanned = scan2.nextInt();
-        if(scanned==9) {
+        String scanned = scan2.nextLine();
+        if(scanned=="QUIT") {
             sh.kill();
-            System.out.println("youbedead");
+            System.out.println("Goodbye!");
         }
 
     }
@@ -42,11 +42,11 @@ public class Server {
 
 class ServerHandler implements Runnable
 {
-    int portNumber = 15882;
+    int portNumber;
     ServerSocket serverSoc = null;
     ArrayList<socketManager> clients = null;
 
-    public ServerHandler (int port) {
+    ServerHandler (int port) {
         portNumber = port;
     }
 
@@ -120,11 +120,46 @@ class ServerConnetionHandler implements Runnable
 
     public void run(){
         try{
+            // Connection has been made with the client
             selfs.output.writeUTF("220 localhost:"+selfs.ip() + ":" + selfs.port() + " Simple Mail Transfer Service Ready"  );
+            // Check if client wants to login or sign-up
+            boolean check = false;
+            while(!check){
+                String option = selfs.input.readUTF();
+                if (option.equals("signup")){
+                    selfs.output.writeUTF("Enter your name");
+                    String name = selfs.input.readUTF();
+                    selfs.output.writeUTF("Enter your username");
+                    String username = selfs.input.readUTF();
+                    selfs.output.writeUTF("Enter your password");
+                    String pw = selfs.input.readUTF();
+                    AddUsers addUsers = new AddUsers(name,username,pw);
+                    Boolean addCheck = addUsers.add();
+                    if (addCheck){
+                        selfs.output.writeUTF("Success in signing up " + name);
+                    }
+                    else{
+                        selfs.output.writeUTF("There was an error adding you to the system. The username may be taken");
+                    }
+                }else if (option.contains("login")){
+                    System.out.println("login");
+                }else{
+                    System.out.println("fail");
+                }
+
+            }
+
+
+
+
+
+
+
+
             String heloCheck = selfs.input.readUTF();
             if(heloCheck.contains("HELO")) {
-                boolean check = false;
-                while (!check)
+                boolean check2 = false;
+                while (!check2)
                 {	selfs.output.writeUTF("start");
                     String message = selfs.input.readUTF();
                     String [] actionCheck = message.split(":");
