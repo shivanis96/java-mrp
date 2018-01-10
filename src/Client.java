@@ -76,7 +76,6 @@ class ClientWriter implements Runnable {
             if (successMessage[0].equals("220")) {
                 System.out.println("Do you want to 1. Sign up or 2. Sign in? Please choose a number");
                 int input = console.nextInt();
-                System.out.println("This is input" + input);
                 boolean check = false;
 
                 while (!check) {
