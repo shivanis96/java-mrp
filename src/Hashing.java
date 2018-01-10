@@ -10,7 +10,7 @@ public class Hashing {
         password = pw;
     }
 
-    private String getHashed() {
+    public String getHashed() {
         String generatedPassword = null;
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-512");

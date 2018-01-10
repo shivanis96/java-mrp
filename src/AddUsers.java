@@ -4,7 +4,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Scanner;
 
-public class AddUsers {
+public  class AddUsers {
     private String name = null;
     private String username = null;
     private String password = null;
@@ -14,7 +14,7 @@ public class AddUsers {
         username = usernameInput;
         password = passwordInput;
     }
-    public void add() {
+    public synchronized boolean add() {
         Connection c = null;
         Statement stmt = null;
         try {
@@ -33,13 +33,21 @@ public class AddUsers {
             c.commit();
             c.close();
             System.out.println("Records created successfully");
+            return true;
         } catch (SQLException se) {
             //Handle errors for JDBC
-            se.printStackTrace();
+            String error = se.getMessage();
+            System.out.println(error);
+            return false;
+
         } catch (Exception e) {
             e.printStackTrace();
-            System.err.println(e.getClass().getName() + ": " + e.getMessage());
+            System.err.println(e.getMessage());
             System.exit(0);
+            return false;
         }
+
     }
+
+
 }
