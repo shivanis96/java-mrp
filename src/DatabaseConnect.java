@@ -19,7 +19,8 @@ public class DatabaseConnect {
                     "(id SERIAL PRIMARY KEY  NOT NULL," +
                     "NAME TEXT NOT NULL," +
                     "USERNAME VARCHAR(255) UNIQUE NOT NULL," +
-                    "PASSWORD VARCHAR(255))";
+                    "PASSWORD VARCHAR(255)," +
+                    "public_key VARCHAR(255))";
             stmt.executeUpdate(sql);
             stmt.close();
             c.close();
