@@ -109,6 +109,8 @@ class ClientWriter implements Runnable {
                             break;
                         case 2:
 //                            SignIn;
+                                message = serverStream.readUTF();
+                                System.out.println(message);
                             break;
                         case 3:
 //                            quit;
