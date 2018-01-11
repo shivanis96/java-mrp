@@ -1,7 +1,14 @@
 import java.io.*;
 import java.net.*;
+import java.util.Arrays;
 import java.util.Random;
 import java.util.Scanner;
+import javax.crypto.Cipher;
+import java.security.*;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
+import java.util.Base64;
 
 public class Client {
 
@@ -74,46 +81,83 @@ class ClientWriter implements Runnable {
             String[] successMessage = serverStream.readUTF().split(" ");
             //Checks first postion equals 220
             if (successMessage[0].equals("220")) {
-                System.out.println("Do you want to 1. Sign up or 2. Sign in? Please choose a number");
+                System.out.println("Do you want to 1. Sign up and login or 2. Login? 3.QUIT? Please choose a number");
                 int input = console.nextInt();
-                System.out.println("This is input" + input);
-                boolean check = false;
+                boolean authCheck = false;
+                boolean loggedIn = false;
+                String username;
+                String name;
+                String password;
+                String hashedPW;
+                Hashing hash;
+                String message;
+                Scanner sc = new Scanner(System.in);
 
-                while (!check) {
+                while (!authCheck) {
                     switch (input) {
                         case 1:
                             dataOut.writeUTF("signup");
                             // Sign up
-                            String message = serverStream.readUTF();
+                            message = serverStream.readUTF();
                             System.out.println(message);
-                            Scanner sc = new Scanner(System.in);
-                            String name = sc.nextLine();
+
+                            name = sc.nextLine();
                             dataOut.writeUTF(name);
                             message = serverStream.readUTF();
                             System.out.println(message);
-                            String username = sc.nextLine();
+                            username = sc.nextLine();
                             dataOut.writeUTF(username);
                             message = serverStream.readUTF();
                             System.out.println(message);
-                            String password = sc.nextLine();
-                            Hashing hash = new Hashing(password);
-                            String hashedPW = hash.getHashed();
+                            password = sc.nextLine();
+                            hash = new Hashing(password);
+                            hashedPW = hash.getHashed();
                             dataOut.writeUTF(hashedPW);
                             message = serverStream.readUTF();
                             System.out.println(message);
                             if (message.contains("Success in signing up")){
-                                dataOut.writeUTF("login");
-                                input = 2;
-                                break;
+                               System.out.println("Now creating your keys");
+                               RSAwithDigitalMessage RSAE = new RSAwithDigitalMessage();
+                               KeyPair pair = RSAE.generateKeyPair();
+                               RSAE.SaveKeyPair(pair,username);
+                               PublicKey pubKey = pair.getPublic();
+                               byte[] bytes = pubKey.getEncoded();
+                               System.out.println(Arrays.toString(bytes));
+                               dataOut.writeInt(bytes.length);
+                               dataOut.write(bytes);
+                               message = serverStream.readUTF();
+                               System.out.println(message);
+                               if(message.equals("You are now logged in!")){
+                                   authCheck = true;
+                                   loggedIn = true;
+                               }
                             }
                             break;
                         case 2:
-//                            SignIn;
-                                message = serverStream.readUTF();
-                                System.out.println(message);
+                            // Login;
+                            dataOut.writeUTF("login");
+                            message = serverStream.readUTF();
+                            System.out.println(message);
+                            username = sc.nextLine();
+                            dataOut.writeUTF(username);
+                            message = serverStream.readUTF();
+                            System.out.println(message);
+                            password = sc.nextLine();
+                            hash = new Hashing(password);
+                            hashedPW = hash.getHashed();
+                            // We do not want the password stored
+                            password = null;
+                            dataOut.writeUTF(hashedPW);
+                            message = serverStream.readUTF();
+                            System.out.println(message);
+                            if(message.equals("You are now logged in!")){
+                                authCheck = true;
+                                loggedIn = true;
+                            }
                             break;
                         case 3:
-//                            quit;
+                            // quit;
+                            authCheck = true;
                             break;
                         default:
                             System.out.println("That is not a vaid number.Do you want to 1. Sign up or 2. Sign in? 3. quit;Please choose a number");
@@ -126,11 +170,11 @@ class ClientWriter implements Runnable {
 
             }
 
-            System.out.println("Sending HELO message");
-            dataOut.writeUTF("HELO " + cwSocket.getInetAddress().getHostAddress() + ":" + cwSocket.getPort());
-
-            System.out.println("Enter QUIT to close the connection");
-            dataOut.writeUTF("QUIT");
+//            System.out.println("Sending HELO message");
+//            dataOut.writeUTF("HELO " + cwSocket.getInetAddress().getHostAddress() + ":" + cwSocket.getPort());
+//
+//            System.out.println("Enter QUIT to close the connection");
+//            dataOut.writeUTF("QUIT");
 
 
         } catch (Exception except) {
