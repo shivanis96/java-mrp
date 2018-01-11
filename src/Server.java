@@ -1,5 +1,6 @@
 import java.net.*;
 import java.util.*;
+import java.io.*;
 
 public class Server {
     private int portNumber = 15882;
@@ -124,6 +125,7 @@ class ServerConnetionHandler implements Runnable {
             String name;
             String pw;
             String pwAuth;
+            String mainChoice;
             boolean authCheck = false;
 
             // This deals with login and signup process
@@ -193,24 +195,60 @@ class ServerConnetionHandler implements Runnable {
 
             }
 
+            while(loggedIn){
 
-            String heloCheck = selfs.input.readUTF();
-            if (heloCheck.contains("HELO")) {
-                boolean check2 = false;
-                while (!check2) {
-                    selfs.output.writeUTF("start");
-                    String message = selfs.input.readUTF();
-                    String[] actionCheck = message.split(":");
-                    String action = actionCheck[0];
-                    //SMTP commands using switch case
+                mainChoice = selfs.input.readUTF();
+                switch(mainChoice){
+                    case "COMPOSE":
+                        ObjectOutputStream oos = new ObjectOutputStream(selfs.soc.getOutputStream());
+                        DB_get_all_users getUsers = new DB_get_all_users();
+                        List<HashMap<String,byte[]>> usernamesList = getUsers.getUsers();
+                        oos.writeObject(usernamesList);
 
+
+                        break;
+                    case "INBOX":
+                        System.out.println("writing mail");
+                        break;
+                    case "DELETEALL":
+                        System.out.println("writing mail");
+                        break;
+                    case "LOGOUT":
+                        System.out.println("writing mail");
+                        loggedIn=false;
+                        break;
+
+                    default:
+                        System.out.println("That was not an option. Please choose an action again");
+                        break;
 
                 }
-                //close the stream once we are done with it
 
-            } else {
-                //this is hello error
+
+
             }
+
+
+            String heloCheck = selfs.input.readUTF();
+//            if (heloCheck.contains("HELO")) {
+//                boolean check2 = false;
+//                while (!check2) {
+//                    selfs.output.writeUTF("start");
+//                    String message = selfs.input.readUTF();
+//                    String[] actionCheck = message.split(":");
+//                    String action = actionCheck[0];
+//                    //SMTP commands using switch case
+//
+//
+//                }
+//                //close the stream once we are done with it
+//
+//            } else {
+//                //this is hello error
+//            }
+
+
+
         } catch (Exception except) {
             //Exception thrown (except) when something went wrong, pushing message to the console
             System.out.println("Error in ServerHandler--> " + except.getMessage());

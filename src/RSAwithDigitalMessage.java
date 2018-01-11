@@ -91,13 +91,13 @@ public class RSAwithDigitalMessage {
         fos.close();
     }
 
-    public static KeyPair LoadKeyPair(String algorithm)
+    public KeyPair LoadKeyPair(String username)
             throws IOException, NoSuchAlgorithmException,
             InvalidKeySpecException {
         // Read Public Key.
         String path = System.getProperty("user.dir");
-        File filePublicKey = new File(path + "/public.key");
-        FileInputStream fis = new FileInputStream(path + "/public.key");
+        File filePublicKey = new File(path + "/"+username+"_public.key");
+        FileInputStream fis = new FileInputStream(path + "/"+username+"_public.key");
         byte[] encodedPublicKey = new byte[(int) filePublicKey.length()];
         fis.read(encodedPublicKey);
         fis.close();
@@ -110,7 +110,7 @@ public class RSAwithDigitalMessage {
         fis.close();
 
         // Generate KeyPair.
-        KeyFactory keyFactory = KeyFactory.getInstance(algorithm);
+        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
         X509EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(
                 encodedPublicKey);
         PublicKey publicKey = keyFactory.generatePublic(publicKeySpec);

@@ -17,7 +17,7 @@ public class CheckUsers {
             System.out.println("Opened database successfully");
             //Execute a query
             stmt = c.createStatement();
-            ResultSet rs = stmt.executeQuery( "SELECT * FROM USERS WHERE USERNAME = 'shivaniisamazing@hotmail.com';" );
+            ResultSet rs = stmt.executeQuery( "SELECT * FROM USERS" );
             while (rs.next()){
                 int id = rs.getInt("id");
                 String  name = rs.getString("name");
