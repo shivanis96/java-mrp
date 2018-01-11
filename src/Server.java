@@ -1,7 +1,8 @@
+import sun.nio.ch.IOUtil;
+
 import java.io.*;
 import java.net.*;
-import java.util.ArrayList;
-import java.util.Scanner;
+import java.util.*;
 import java.security.*;
 import javax.crypto.*;
 
@@ -137,6 +138,18 @@ class ServerConnetionHandler implements Runnable {
                     Boolean addCheck = addUsers.add();
                     if (addCheck) {
                         selfs.output.writeUTF("Success in signing up " + name);
+                        int length = selfs.input.readInt();                    // read length of incoming message
+                        if(length>0) {
+                            byte[] pkByte = new byte[length];
+                            selfs.input.readFully(pkByte, 0, pkByte.length); // read the message
+                            System.out.println(Arrays.toString(pkByte));
+                            updatePK uPK = new updatePK(username,pkByte);
+                            uPK.updatepk();
+
+                        }
+
+
+
                     } else {
                         selfs.output.writeUTF("There was an error adding you to the system. The username may be taken. Please try again");
                     }

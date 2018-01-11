@@ -1,7 +1,14 @@
 import java.io.*;
 import java.net.*;
+import java.util.Arrays;
 import java.util.Random;
 import java.util.Scanner;
+import javax.crypto.Cipher;
+import java.security.*;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
+import java.util.Base64;
 
 public class Client {
 
@@ -101,8 +108,18 @@ class ClientWriter implements Runnable {
                             message = serverStream.readUTF();
                             System.out.println(message);
                             if (message.contains("Success in signing up")){
-                                dataOut.writeUTF("login");
-                                input = 2;
+                               System.out.println("Now creating your keys");
+                               RSAwithDigitalMessage RSAE = new RSAwithDigitalMessage();
+                               KeyPair pair = RSAE.generateKeyPair();
+                               RSAE.SaveKeyPair(pair,username);
+                               PublicKey pubKey = pair.getPublic();
+                               byte[] bytes = pubKey.getEncoded();
+                               System.out.println(Arrays.toString(bytes));
+                               dataOut.writeInt(bytes.length);
+                               dataOut.write(bytes);
+
+
+
                                 break;
                             }
                             break;

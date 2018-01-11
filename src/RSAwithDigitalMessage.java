@@ -9,7 +9,7 @@ import java.util.Base64;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class RSAwithDigitalMessage {
-    public static KeyPair generateKeyPair() throws Exception {
+    public KeyPair generateKeyPair() throws Exception {
         KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
         generator.initialize(2048, new SecureRandom());
         KeyPair pair = generator.generateKeyPair();
@@ -71,7 +71,7 @@ public class RSAwithDigitalMessage {
         return result;
     }
 
-    public static void SaveKeyPair(KeyPair keyPair) throws IOException {
+    public void SaveKeyPair(KeyPair keyPair, String username) throws IOException {
         PrivateKey privateKey = keyPair.getPrivate();
         PublicKey publicKey = keyPair.getPublic();
         String path = System.getProperty("user.dir");
@@ -79,14 +79,14 @@ public class RSAwithDigitalMessage {
         // Store Public Key.
         X509EncodedKeySpec x509EncodedKeySpec = new X509EncodedKeySpec(
                 publicKey.getEncoded());
-        FileOutputStream fos = new FileOutputStream(path + "/public.key");
+        FileOutputStream fos = new FileOutputStream(path + "/"+username+"_public.key");
         fos.write(x509EncodedKeySpec.getEncoded());
         fos.close();
 
         // Store Private Key.
         PKCS8EncodedKeySpec pkcs8EncodedKeySpec = new PKCS8EncodedKeySpec(
                 privateKey.getEncoded());
-        fos = new FileOutputStream(path + "/private.key");
+        fos = new FileOutputStream(path + "/"+username+"_private.key");
         fos.write(pkcs8EncodedKeySpec.getEncoded());
         fos.close();
     }
@@ -144,34 +144,34 @@ public class RSAwithDigitalMessage {
 
     public static void main(String... argv) throws Exception {
         //First generate a public/private key pair
-        KeyPair pair = generateKeyPair();
-
-
-        System.out.println("Generated Key Pair");
-
-        dumpKeyPair(pair);
-
-        SaveKeyPair(pair);
-
-        KeyPair loadedKeyPair = LoadKeyPair("RSA");
-        System.out.println("Loaded Key Pair");
-
-        //Our secret message
-        String message = "the answer to life the universe and everything";
-
-        //Encrypt the message
-        String cipherText = encrypt(message, loadedKeyPair.getPublic());
-
-        //Now decrypt it
-        String decipheredMessage = decrypt(cipherText, loadedKeyPair.getPrivate());
-
-        System.out.println(decipheredMessage);
-
-        //Let's sign our message
-        String signature = sign("foobar", loadedKeyPair.getPrivate());
-
-        //Let's check the signature
-        boolean isCorrect = verify("foobar", signature, loadedKeyPair.getPublic());
-        System.out.println("Signature correct: " + isCorrect);
+//        KeyPair pair = generateKeyPair();
+//
+//
+//        System.out.println("Generated Key Pair");
+//
+//        dumpKeyPair(pair);
+//
+//        SaveKeyPair(pair);
+//
+//        KeyPair loadedKeyPair = LoadKeyPair("RSA");
+//        System.out.println("Loaded Key Pair");
+//
+//        //Our secret message
+//        String message = "the answer to life the universe and everything";
+//
+//        //Encrypt the message
+//        String cipherText = encrypt(message, loadedKeyPair.getPublic());
+//
+//        //Now decrypt it
+//        String decipheredMessage = decrypt(cipherText, loadedKeyPair.getPrivate());
+//
+//        System.out.println(decipheredMessage);
+//
+//        //Let's sign our message
+//        String signature = sign("foobar", loadedKeyPair.getPrivate());
+//
+//        //Let's check the signature
+//        boolean isCorrect = verify("foobar", signature, loadedKeyPair.getPublic());
+//        System.out.println("Signature correct: " + isCorrect);
     }
 }
