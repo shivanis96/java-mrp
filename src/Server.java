@@ -124,11 +124,11 @@ class ServerConnetionHandler implements Runnable {
             String name;
             String pw;
             String pwAuth;
-            boolean check = false;
-            while (!check) {
+            boolean authCheck = false;
+
+            // This deals with login and signup process
+            while (!authCheck) {
                 String option = selfs.input.readUTF();
-
-
                 switch(option){
                     case "signup":
                         selfs.output.writeUTF("Enter your name");
@@ -151,7 +151,7 @@ class ServerConnetionHandler implements Runnable {
                                 if(loggedIn){
                                     System.out.println("The client has logged in!!");
                                     selfs.output.writeUTF("You are now logged in!");
-                                    check = true;
+                                    authCheck = true;
                                 }
                             }
                         } else {
@@ -173,8 +173,9 @@ class ServerConnetionHandler implements Runnable {
                                 break;
                             case "password_ok":
                                 System.out.println("Password has matched");
+                                loggedIn = true;
                                 selfs.output.writeUTF("You are now logged in!");
-                                check = true;
+                                authCheck = true;
                                 break;
                             case "error":
                                 System.out.println("Error. Please try Again.");

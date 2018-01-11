@@ -83,7 +83,8 @@ class ClientWriter implements Runnable {
             if (successMessage[0].equals("220")) {
                 System.out.println("Do you want to 1. Sign up and login or 2. Login? 3.QUIT? Please choose a number");
                 int input = console.nextInt();
-                boolean check = false;
+                boolean authCheck = false;
+                boolean loggedIn = false;
                 String username;
                 String name;
                 String password;
@@ -92,7 +93,7 @@ class ClientWriter implements Runnable {
                 String message;
                 Scanner sc = new Scanner(System.in);
 
-                while (!check) {
+                while (!authCheck) {
                     switch (input) {
                         case 1:
                             dataOut.writeUTF("signup");
@@ -127,7 +128,8 @@ class ClientWriter implements Runnable {
                                message = serverStream.readUTF();
                                System.out.println(message);
                                if(message.equals("You are now logged in!")){
-                                   check = true;
+                                   authCheck = true;
+                                   loggedIn = true;
                                }
                             }
                             break;
@@ -149,11 +151,13 @@ class ClientWriter implements Runnable {
                             message = serverStream.readUTF();
                             System.out.println(message);
                             if(message.equals("You are now logged in!")){
-                                check = true;
+                                authCheck = true;
+                                loggedIn = true;
                             }
                             break;
                         case 3:
-//                            quit;
+                            // quit;
+                            authCheck = true;
                             break;
                         default:
                             System.out.println("That is not a vaid number.Do you want to 1. Sign up or 2. Sign in? 3. quit;Please choose a number");
@@ -166,11 +170,11 @@ class ClientWriter implements Runnable {
 
             }
 
-            System.out.println("Sending HELO message");
-            dataOut.writeUTF("HELO " + cwSocket.getInetAddress().getHostAddress() + ":" + cwSocket.getPort());
-
-            System.out.println("Enter QUIT to close the connection");
-            dataOut.writeUTF("QUIT");
+//            System.out.println("Sending HELO message");
+//            dataOut.writeUTF("HELO " + cwSocket.getInetAddress().getHostAddress() + ":" + cwSocket.getPort());
+//
+//            System.out.println("Enter QUIT to close the connection");
+//            dataOut.writeUTF("QUIT");
 
 
         } catch (Exception except) {
