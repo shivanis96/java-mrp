@@ -128,40 +128,41 @@ class ServerConnetionHandler implements Runnable {
             boolean check = false;
             while (!check) {
                 String option = selfs.input.readUTF();
-                if (option.equals("signup")) {
-                    selfs.output.writeUTF("Enter your name");
-                    String name = selfs.input.readUTF();
-                    selfs.output.writeUTF("Enter your username");
-                    String username = selfs.input.readUTF();
-                    selfs.output.writeUTF("Enter your password");
-                    String pw = selfs.input.readUTF();
-                    AddUsers addUsers = new AddUsers(name, username, pw);
-                    Boolean addCheck = addUsers.add();
-                    if (addCheck) {
-                        selfs.output.writeUTF("Success in signing up " + name);
-                        int length = selfs.input.readInt();                    // read length of incoming message
-                        if(length>0) {
-                            byte[] pkByte = new byte[length];
-                            selfs.input.readFully(pkByte, 0, pkByte.length); // read the message
-                            System.out.println(Arrays.toString(pkByte));
-                            updatePK uPK = new updatePK(username,pkByte);
-                            loggedIn = uPK.updatepk();
-                            if(loggedIn){
-                                System.out.println("The client has logged in!!");
-                                selfs.output.writeUTF("You are now logged in!");
+
+                switch(option){
+                    case "signup":
+                        selfs.output.writeUTF("Enter your name");
+                        String name = selfs.input.readUTF();
+                        selfs.output.writeUTF("Enter your username");
+                        String username = selfs.input.readUTF();
+                        selfs.output.writeUTF("Enter your password");
+                        String pw = selfs.input.readUTF();
+                        AddUsers addUsers = new AddUsers(name, username, pw);
+                        Boolean addCheck = addUsers.add();
+                        if (addCheck) {
+                            selfs.output.writeUTF("Success in signing up " + name);
+                            int length = selfs.input.readInt();                    // read length of incoming message
+                            if(length>0) {
+                                byte[] pkByte = new byte[length];
+                                selfs.input.readFully(pkByte, 0, pkByte.length); // read the message
+                                System.out.println(Arrays.toString(pkByte));
+                                updatePK uPK = new updatePK(username,pkByte);
+                                loggedIn = uPK.updatepk();
+                                if(loggedIn){
+                                    System.out.println("The client has logged in!!");
+                                    selfs.output.writeUTF("You are now logged in!");
+                                }
                             }
+
+
+
+                        } else {
+                            selfs.output.writeUTF("There was an error adding you to the system. The username may be taken. Please try again");
                         }
-
-
-
-                    } else {
-                        selfs.output.writeUTF("There was an error adding you to the system. The username may be taken. Please try again");
-                    }
-                } else if (option.contains("login")) {
-                    System.out.println("login");
-                } else {
-                    System.out.println("fail");
+                    case "login":
+                        System.out.println("login");
                 }
+
 
             }
 
