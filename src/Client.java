@@ -117,10 +117,11 @@ class ClientWriter implements Runnable {
                                System.out.println(Arrays.toString(bytes));
                                dataOut.writeInt(bytes.length);
                                dataOut.write(bytes);
-
-
-
-                                break;
+                               message = serverStream.readUTF();
+                               System.out.println(message);
+                               if(message.equals("You are now logged in!")){
+                                   check = true;
+                               }
                             }
                             break;
                         case 2:

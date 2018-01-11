@@ -122,6 +122,7 @@ class ServerConnetionHandler implements Runnable {
     public void run() {
         try {
             // Connection has been made with the client
+            Boolean loggedIn = false;
             selfs.output.writeUTF("220 localhost:" + selfs.ip() + ":" + selfs.port() + " Simple Mail Transfer Service Ready");
             // Check if client wants to login or sign-up
             boolean check = false;
@@ -144,8 +145,11 @@ class ServerConnetionHandler implements Runnable {
                             selfs.input.readFully(pkByte, 0, pkByte.length); // read the message
                             System.out.println(Arrays.toString(pkByte));
                             updatePK uPK = new updatePK(username,pkByte);
-                            uPK.updatepk();
-
+                            loggedIn = uPK.updatepk();
+                            if(loggedIn){
+                                System.out.println("The client has logged in!!");
+                                selfs.output.writeUTF("You are now logged in!");
+                            }
                         }
 
 
