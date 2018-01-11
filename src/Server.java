@@ -1,10 +1,5 @@
-import sun.nio.ch.IOUtil;
-
-import java.io.*;
 import java.net.*;
 import java.util.*;
-import java.security.*;
-import javax.crypto.*;
 
 public class Server {
     private int portNumber = 15882;
@@ -125,19 +120,24 @@ class ServerConnetionHandler implements Runnable {
             Boolean loggedIn = false;
             selfs.output.writeUTF("220 localhost:" + selfs.ip() + ":" + selfs.port() + " Simple Mail Transfer Service Ready");
             // Check if client wants to login or sign-up
+            String username;
+            String name;
+            String pw;
+            String pwAuth;
             boolean check = false;
             while (!check) {
                 String option = selfs.input.readUTF();
 
+
                 switch(option){
                     case "signup":
                         selfs.output.writeUTF("Enter your name");
-                        String name = selfs.input.readUTF();
+                        name = selfs.input.readUTF();
                         selfs.output.writeUTF("Enter your username");
-                        String username = selfs.input.readUTF();
+                        username = selfs.input.readUTF();
                         selfs.output.writeUTF("Enter your password");
-                        String pw = selfs.input.readUTF();
-                        AddUsers addUsers = new AddUsers(name, username, pw);
+                        pw = selfs.input.readUTF();
+                        DB_AddUsers addUsers = new DB_AddUsers(name, username, pw);
                         Boolean addCheck = addUsers.add();
                         if (addCheck) {
                             selfs.output.writeUTF("Success in signing up " + name);
@@ -146,21 +146,47 @@ class ServerConnetionHandler implements Runnable {
                                 byte[] pkByte = new byte[length];
                                 selfs.input.readFully(pkByte, 0, pkByte.length); // read the message
                                 System.out.println(Arrays.toString(pkByte));
-                                updatePK uPK = new updatePK(username,pkByte);
+                                DB_UpdatePK uPK = new DB_UpdatePK(username,pkByte);
                                 loggedIn = uPK.updatepk();
                                 if(loggedIn){
                                     System.out.println("The client has logged in!!");
                                     selfs.output.writeUTF("You are now logged in!");
+                                    check = true;
                                 }
                             }
-
-
-
                         } else {
                             selfs.output.writeUTF("There was an error adding you to the system. The username may be taken. Please try again");
                         }
+                        break;
+
                     case "login":
-                        System.out.println("login");
+                        selfs.output.writeUTF("Enter your username");
+                        username = selfs.input.readUTF();
+                        selfs.output.writeUTF("Enter your password");
+                        pw = selfs.input.readUTF();
+                        DB_CheckPassword pwCheck = new DB_CheckPassword(username,pw);
+                        pwAuth=pwCheck.checkPW();
+                        switch(pwAuth){
+                            case "no_user":
+                                System.out.println("No User In Database");
+                                selfs.output.writeUTF("The username does not exists. Please try entering your details again");
+                                break;
+                            case "password_ok":
+                                System.out.println("Password has matched");
+                                selfs.output.writeUTF("You are now logged in!");
+                                check = true;
+                                break;
+                            case "error":
+                                System.out.println("Error. Please try Again.");
+                                selfs.output.writeUTF("There has been an error. This may be with our database. Please try entering your details again");
+                                break;
+                            case "wrong_password":
+                                System.out.println("Wrong password has been entered.");
+                                selfs.output.writeUTF("The wrong password has been entered. Please try entering your details again");
+                                break;
+
+                        }
+                        break;
                 }
 
 

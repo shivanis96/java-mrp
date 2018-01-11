@@ -4,12 +4,12 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Scanner;
 
-public  class AddUsers {
+public  class DB_AddUsers {
     private String name = null;
     private String username = null;
     private String password = null;
 
-    public AddUsers (String nameInput, String usernameInput, String passwordInput){
+    public DB_AddUsers(String nameInput, String usernameInput, String passwordInput){
         name = nameInput;
         username = usernameInput;
         password = passwordInput;

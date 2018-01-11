@@ -2,11 +2,11 @@ import java.sql.*;
 import java.util.Arrays;
 import java.util.Scanner;
 
-public  class updatePK {
+public  class DB_UpdatePK {
     private String username = null;
     private byte[]  pk = null;
 
-    public updatePK (String usernameInput, byte[] pubKey ){
+    public DB_UpdatePK(String usernameInput, byte[] pubKey ){
         username = usernameInput;
         pk = pubKey;
     }

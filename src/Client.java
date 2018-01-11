@@ -84,26 +84,33 @@ class ClientWriter implements Runnable {
                 System.out.println("Do you want to 1. Sign up and login or 2. Login? 3.QUIT? Please choose a number");
                 int input = console.nextInt();
                 boolean check = false;
+                String username;
+                String name;
+                String password;
+                String hashedPW;
+                Hashing hash;
+                String message;
+                Scanner sc = new Scanner(System.in);
 
                 while (!check) {
                     switch (input) {
                         case 1:
                             dataOut.writeUTF("signup");
                             // Sign up
-                            String message = serverStream.readUTF();
+                            message = serverStream.readUTF();
                             System.out.println(message);
-                            Scanner sc = new Scanner(System.in);
-                            String name = sc.nextLine();
+
+                            name = sc.nextLine();
                             dataOut.writeUTF(name);
                             message = serverStream.readUTF();
                             System.out.println(message);
-                            String username = sc.nextLine();
+                            username = sc.nextLine();
                             dataOut.writeUTF(username);
                             message = serverStream.readUTF();
                             System.out.println(message);
-                            String password = sc.nextLine();
-                            Hashing hash = new Hashing(password);
-                            String hashedPW = hash.getHashed();
+                            password = sc.nextLine();
+                            hash = new Hashing(password);
+                            hashedPW = hash.getHashed();
                             dataOut.writeUTF(hashedPW);
                             message = serverStream.readUTF();
                             System.out.println(message);
@@ -125,9 +132,25 @@ class ClientWriter implements Runnable {
                             }
                             break;
                         case 2:
-//                            SignIn;
-                                message = serverStream.readUTF();
-                                System.out.println(message);
+                            // Login;
+                            dataOut.writeUTF("login");
+                            message = serverStream.readUTF();
+                            System.out.println(message);
+                            username = sc.nextLine();
+                            dataOut.writeUTF(username);
+                            message = serverStream.readUTF();
+                            System.out.println(message);
+                            password = sc.nextLine();
+                            hash = new Hashing(password);
+                            hashedPW = hash.getHashed();
+                            // We do not want the password stored
+                            password = null;
+                            dataOut.writeUTF(hashedPW);
+                            message = serverStream.readUTF();
+                            System.out.println(message);
+                            if(message.equals("You are now logged in!")){
+                                check = true;
+                            }
                             break;
                         case 3:
 //                            quit;
