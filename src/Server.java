@@ -205,6 +205,17 @@ class ServerConnetionHandler implements Runnable {
                         List<HashMap<String,byte[]>> usernamesList = getUsers.getUsers();
                         oos.writeObject(usernamesList);
 
+                        // read incoming message
+
+                        InputStream is = selfs.soc.getInputStream();
+                        ObjectInputStream ois = new ObjectInputStream(is);
+                        HashMap<String,String> incomingMessage = (HashMap<String,String>) ois.readObject();
+
+                        String s = incomingMessage.get("Subject");
+                        String m = incomingMessage.get("Mail From");
+
+                        System.out.println(m);
+                        System.out.println(s);
 
                         break;
                     case "INBOX":

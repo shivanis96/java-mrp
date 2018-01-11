@@ -179,26 +179,77 @@ class ClientWriter implements Runnable {
                             InputStream is = cwSocket.getInputStream();
                             ObjectInputStream ois = new ObjectInputStream(is);
                             List<HashMap<String,byte[]>> myMessageArray = (List<HashMap<String,byte[]>>) ois.readObject();
+                            List<String> userList = new ArrayList<String>();
+                            List<byte[]> keyList = new ArrayList<byte[]>();
+
+
                             System.out.println("Please choose the number of the recipient you want to send to:");
                             for (HashMap<String,byte[]> s : myMessageArray) {
                                 for (String key : myMessageArray.get(myMessageArray.indexOf(s)).keySet()){
-                                    System.out.println("User " + myMessageArray.indexOf(s)+ ": " + key);
+                                    userList.add(key);
+                                    keyList.add(myMessageArray.get(myMessageArray.indexOf(s)).get(key));
+
+                                    //System.out.println("User " + myMessageArray.indexOf(s)+ ": " + key);
                                 }
                             }
+
+                            for (String u : userList){
+                                System.out.println("User " + userList.indexOf(u)+ ": " + u);
+                            }
+
                             int index = sc.nextInt();
                             sc.nextLine();
-                            HashMap<String,byte[]> rcptTo;
+                            String rcptTo;
                             String subject;
                             String body;
                             String DS;
+                            String encBody;
+                            String encSubject;
+                            byte [] pkByteForm;
 
-                            rcptTo = myMessageArray.get(index);
+                            rcptTo = userList.get(index);
+
+                            // Get the other users public key
+                            pkByteForm = keyList.get(index);
+                            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+                            X509EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(pkByteForm);
+                            PublicKey pk = keyFactory.generatePublic(publicKeySpec);
+
+
+                            // TODO : REMOVE
+                            System.out.println("Their Public Key: " + RSAE.getHexString(pk.getEncoded()));
+                            System.out.println("my Public Key: " + RSAE.getHexString(myKP.getPublic().getEncoded()));
+
                             System.out.println("We are now writing to: " + rcptTo);
+
+                            // Encrypt subject
                             System.out.println("What is the subject of your message?");
                             subject = sc.nextLine();
+                            System.out.println("Encrypting...");
+                            encSubject = RSAE.encrypt(subject,pk);
+
+                            // Encrypt body
                             System.out.println("What is the body of your message?");
                             body = sc.nextLine();
                             System.out.println("Encrypting...");
+                            encBody = RSAE.encrypt(body,pk);
+
+                            // Get digital signature
+                            DS = RSAE.sign(body,myKP.getPrivate());
+
+
+                            // Create Full message object
+                            HashMap<String,String> fullMessage = new HashMap<String,String>();
+                            fullMessage.put("Mail From", username);
+                            fullMessage.put("RCPT to", rcptTo);
+                            fullMessage.put("Subject", encSubject);
+                            fullMessage.put("Message", encBody);
+                            fullMessage.put("DigitalSignature", DS);
+
+                            ObjectOutputStream oos = new ObjectOutputStream(cwSocket.getOutputStream());
+                            oos.writeObject(fullMessage);
+
+                            System.out.println("Message sent!");
 
 
 
