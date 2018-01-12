@@ -249,9 +249,8 @@ class ClientWriter implements Runnable {
                             ObjectOutputStream oos = new ObjectOutputStream(cwSocket.getOutputStream());
                             oos.writeObject(fullMessage);
 
-                            System.out.println("Message sent!");
-
-
+                            String response = serverStream.readUTF();
+                            System.out.println(response);
 
                             break;
                         case "INBOX":

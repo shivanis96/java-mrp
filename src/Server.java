@@ -210,8 +210,6 @@ class ServerConnetionHandler implements Runnable {
                         InputStream is = selfs.soc.getInputStream();
                         ObjectInputStream ois = new ObjectInputStream(is);
                         HashMap<String,String> incomingMessage = (HashMap<String,String>) ois.readObject();
-
-
                         String message_mail = incomingMessage.get("Mail From");
                         String message_rcpt = incomingMessage.get("Rcpt to");
                         String message_subject = incomingMessage.get("Subject");
@@ -223,10 +221,13 @@ class ServerConnetionHandler implements Runnable {
 
                         if (messageSuccess){
                             System.out.println("Message has been added");
+                            selfs.output.writeUTF("Your message has been added and encrypted.");
+
+
                         } else{
                             System.out.println("Message has been failed");
+                            selfs.output.writeUTF("Your message has failed. Please try again");
                         }
-
 
                         break;
                     case "INBOX":

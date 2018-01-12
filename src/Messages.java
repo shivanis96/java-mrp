@@ -18,7 +18,7 @@ public class Messages {
             String sql = "CREATE TABLE MESSAGES" +
                     "(id SERIAL PRIMARY KEY  NOT NULL," +
                     "RCPTTO VARCHAR(255) NOT NULL," +
-                    "MAILFROM VARCHAR(255) UNIQUE NOT NULL," +
+                    "MAILFROM VARCHAR(255) NOT NULL," +
                     "DATE DATE NOT NULL," +
                     "TIME TIME NOT NULL," +
                     "SIGN TEXT NOT NULL," +
