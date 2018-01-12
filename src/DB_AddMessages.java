@@ -26,13 +26,15 @@ public  class DB_AddMessages {
             System.out.println("Connecting to a database...");
             c = DriverManager.getConnection("jdbc:postgresql://localhost:5432/mrdb", "shivani", "password");
             c.setAutoCommit(false);
-            java.sql.Timestamp date = new java.sql.Timestamp(new java.util.Date().getTime());
             System.out.println("Opened database successfully");
             //Execute a query
+            Calendar calendar = Calendar.getInstance();
+            java.sql.Date ourJavaDateObject = new java.sql.Date(calendar.getTime().getTime());
+            java.sql.Timestamp ourJavaTimestampObject = new java.sql.Timestamp(calendar.getTime().getTime());
 
-            stmt= c.prepareStatement("INSERT INTO MESSAGES (RCPTTO, MAILFROM,DATETIME ,SUBJECT, BODY, SIGN)" + "VALUES ('" + rcptto + "','" + mailfrom + "',?,'" +subject +  "','"+body+ "','" + sign + "');");
-
-            stmt.setTimestamp(1,date);
+            stmt= c.prepareStatement("INSERT INTO MESSAGES (RCPTTO, MAILFROM,DATE, TIME ,SUBJECT, BODY, SIGN)" + "VALUES ('" + rcptto + "','" + mailfrom + "',?,?,'" +subject +  "','"+body+ "','" + sign + "');");
+            stmt.setDate(1,ourJavaDateObject);
+            stmt.setTimestamp(2,ourJavaTimestampObject);
             stmt.executeUpdate();
 
             stmt.close();
