@@ -167,7 +167,7 @@ class ClientWriter implements Runnable {
 
                 while (loggedIn) {
                     KeyPair myKP = RSAE.LoadKeyPair(username);
-                    System.out.println("What do you want to do");
+                    System.out.println("What do you want to do: COMPOSE, INBOX, DELETEALL OR LOGOUT?");
                     // TODO: Add instructions here
 
                     String mainChoice = sc.nextLine().toUpperCase();
@@ -227,7 +227,7 @@ class ClientWriter implements Runnable {
                             encSubject = RSAE.encrypt(subject, pk);
 
 
-                            System.out.println(RSAE.decrypt(encSubject,myKP.getPrivate()));
+                            System.out.println(RSAE.decrypt(encSubject, myKP.getPrivate()));
                             System.out.println(encSubject);
 
                             // Encrypt body
@@ -236,7 +236,7 @@ class ClientWriter implements Runnable {
                             System.out.println("Encrypting...");
                             encBody = RSAE.encrypt(body, pk);
 
-                            System.out.println(RSAE.decrypt(encBody,myKP.getPrivate()));
+                            System.out.println(RSAE.decrypt(encBody, myKP.getPrivate()));
                             System.out.println(encBody);
 
                             // Get digital signature
@@ -264,7 +264,7 @@ class ClientWriter implements Runnable {
 
                             InputStream isInbox = cwSocket.getInputStream();
                             ObjectInputStream oisInbox = new ObjectInputStream(isInbox);
-                            List<HashMap<String, String>> messagesAll = (List<HashMap<String,String>>) oisInbox.readObject();
+                            List<HashMap<String, String>> messagesAll = (List<HashMap<String, String>>) oisInbox.readObject();
 
                             String id;
                             String Sender;
@@ -277,36 +277,26 @@ class ClientWriter implements Runnable {
                             PublicKey pk2;
 
 
-                            System.out.println("Please choose the number of the recipient you want to send to:");
-                            for (HashMap<String, String> s : messagesAll){
+                            System.out.println("Here are all your messages: ");
+                            for (HashMap<String, String> s : messagesAll) {
                                 id = s.get("id");
-                                Sender = s.get("sender");
+                                Sender = s.get("Sender");
                                 Date = s.get("Date");
+                                System.out.println("ID: " + id + "\tSender: " + Sender + "\tDate: " + Date);
                                 KeyPair myKpInbox = RSAE.LoadKeyPair(username);
                                 Subject = s.get("Subject");
-                                decSubject = RSAE.decrypt(Subject,myKpInbox.getPrivate());
-//                                Body = s.get("Subject");
-//                                decBody = RSAE.decrypt(Body,myKpInbox.getPrivate());
-//
-                               System.out.println(decSubject);
+                                decSubject = RSAE.decrypt(Subject, myKpInbox.getPrivate());
+                                Body = s.get("Body");
 
-                                // Get the other users public key
-
-//                                KeyFactory keyFactory2 = KeyFactory.getInstance("RSA");
-//                                X509EncodedKeySpec publicKeySpec2 = new X509EncodedKeySpec();
-//
-//
-//                                pk2 = keyFactory2.generatePublic(publicKeySpec2);
-//
-//
-//                                Signcheck = RSAE.verify(decBody,s.get("Sign"),)
-
-                                System.out.println(s.get("Sign"));
-                                System.out.println(s.get("pubkey"));
+                                decBody = RSAE.decrypt(Body, myKpInbox.getPrivate());
+                                System.out.println("Subject: " + decSubject);
+                                System.out.println("Body: " + decBody);
+//                                System.out.println(s.get("Sign"));
+//                                System.out.println(s.get("pubkey"));
                             }
 
 
-                                break;
+                            break;
                         case "DELETEALL":
                             System.out.println("writing mail");
                             break;
