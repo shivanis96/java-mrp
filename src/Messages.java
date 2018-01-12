@@ -19,10 +19,10 @@ public class Messages {
                     "(id SERIAL PRIMARY KEY  NOT NULL," +
                     "RCPTTO VARCHAR(255) NOT NULL," +
                     "MAILFROM VARCHAR(255) UNIQUE NOT NULL," +
-                    "DATE DATE NOT NULL," +
-                    "TIME TIME NOT NULL," +
+                    "DATETIME TIMESTAMP NOT NULL," +
+                    "SIGN VARCHAR(255) NOT NULL," +
                     "SUBJECT VARCHAR(255) NOT NULL," +
-                    "MESSAGE VARCHAR(255) NOT NULL)";
+                    "BODY VARCHAR(255) NOT NULL)";
 
             stmt.executeUpdate(sql);
             stmt.close();

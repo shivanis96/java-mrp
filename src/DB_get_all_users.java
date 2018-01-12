@@ -24,7 +24,7 @@ public  class DB_get_all_users {
             stmt = c.prepareStatement("SELECT * FROM USERS");
             ResultSet rs = stmt.executeQuery();
             while (rs.next()){
-                //temp.add(rs.getString("username"));
+                //temp.addMessage(rs.getString("username"));
                 HashMap<String,byte[]> hMap = new HashMap<String,byte[]>();
                 byte[] pk = rs.getBytes("public_key");
                 String name = rs.getString("username");

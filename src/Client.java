@@ -241,9 +241,9 @@ class ClientWriter implements Runnable {
                             // Create Full message object
                             HashMap<String,String> fullMessage = new HashMap<String,String>();
                             fullMessage.put("Mail From", username);
-                            fullMessage.put("RCPT to", rcptTo);
+                            fullMessage.put("Rcpt to", rcptTo);
                             fullMessage.put("Subject", encSubject);
-                            fullMessage.put("Message", encBody);
+                            fullMessage.put("Body", encBody);
                             fullMessage.put("DigitalSignature", DS);
 
                             ObjectOutputStream oos = new ObjectOutputStream(cwSocket.getOutputStream());

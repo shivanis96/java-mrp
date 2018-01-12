@@ -211,11 +211,22 @@ class ServerConnetionHandler implements Runnable {
                         ObjectInputStream ois = new ObjectInputStream(is);
                         HashMap<String,String> incomingMessage = (HashMap<String,String>) ois.readObject();
 
-                        String s = incomingMessage.get("Subject");
-                        String m = incomingMessage.get("Mail From");
 
-                        System.out.println(m);
-                        System.out.println(s);
+                        String message_mail = incomingMessage.get("Mail From");
+                        String message_rcpt = incomingMessage.get("Rcpt to");
+                        String message_subject = incomingMessage.get("Subject");
+                        String message_body = incomingMessage.get("Body");
+                        String message_sign = incomingMessage.get("DigitalSignature");
+                        DB_AddMessages newMsg = new DB_AddMessages(message_rcpt,message_mail,message_subject,message_body,message_sign);
+
+                        boolean messageSuccess = newMsg.addMessage();
+
+                        if (messageSuccess){
+                            System.out.println("Message has been added");
+                        } else{
+                            System.out.println("Message has been failed");
+                        }
+
 
                         break;
                     case "INBOX":
