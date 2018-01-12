@@ -1,8 +1,6 @@
 import java.io.*;
 import java.net.*;
-import java.util.Arrays;
-import java.util.Random;
-import java.util.Scanner;
+import java.util.*;
 import javax.crypto.Cipher;
 import java.security.*;
 import java.security.spec.InvalidKeySpecException;
@@ -59,7 +57,6 @@ class ClientWriter implements Runnable {
     DataInputStream serverStream = null;
 
 
-
     public ClientWriter(Socket outputSoc) {
         cwSocket = outputSoc;
 
@@ -71,27 +68,29 @@ class ClientWriter implements Runnable {
 
 
         try {
-            //Create the outputstream to send data through
+            //Create the streams to send data through
             DataOutputStream dataOut = new DataOutputStream(cwSocket.getOutputStream());
-            //
-            Scanner console = new Scanner(System.in);
             DataInputStream serverStream = new DataInputStream(cwSocket.getInputStream());
+            Scanner sc = new Scanner(System.in);
+
             System.out.println("Client writer running");
             //Read hat comes in from server and splits all the words with a space
             String[] successMessage = serverStream.readUTF().split(" ");
             //Checks first postion equals 220
             if (successMessage[0].equals("220")) {
                 System.out.println("Do you want to 1. Sign up and login or 2. Login? 3.QUIT? Please choose a number");
-                int input = console.nextInt();
+                int input = sc.nextInt();
+                sc.nextLine();
                 boolean authCheck = false;
                 boolean loggedIn = false;
-                String username;
+                String username = null;
                 String name;
                 String password;
                 String hashedPW;
                 Hashing hash;
+                RSAwithDigitalMessage RSAE = new RSAwithDigitalMessage();
                 String message;
-                Scanner sc = new Scanner(System.in);
+
 
                 while (!authCheck) {
                     switch (input) {
@@ -115,22 +114,21 @@ class ClientWriter implements Runnable {
                             dataOut.writeUTF(hashedPW);
                             message = serverStream.readUTF();
                             System.out.println(message);
-                            if (message.contains("Success in signing up")){
-                               System.out.println("Now creating your keys");
-                               RSAwithDigitalMessage RSAE = new RSAwithDigitalMessage();
-                               KeyPair pair = RSAE.generateKeyPair();
-                               RSAE.SaveKeyPair(pair,username);
-                               PublicKey pubKey = pair.getPublic();
-                               byte[] bytes = pubKey.getEncoded();
-                               System.out.println(Arrays.toString(bytes));
-                               dataOut.writeInt(bytes.length);
-                               dataOut.write(bytes);
-                               message = serverStream.readUTF();
-                               System.out.println(message);
-                               if(message.equals("You are now logged in!")){
-                                   authCheck = true;
-                                   loggedIn = true;
-                               }
+                            if (message.contains("Success in signing up")) {
+                                System.out.println("Now creating your keys");
+                                KeyPair pair = RSAE.generateKeyPair();
+                                RSAE.SaveKeyPair(pair, username);
+                                PublicKey pubKey = pair.getPublic();
+                                byte[] bytes = pubKey.getEncoded();
+                                System.out.println(Arrays.toString(bytes));
+                                dataOut.writeInt(bytes.length);
+                                dataOut.write(bytes);
+                                message = serverStream.readUTF();
+                                System.out.println(message);
+                                if (message.equals("You are now logged in!")) {
+                                    authCheck = true;
+                                    loggedIn = true;
+                                }
                             }
                             break;
                         case 2:
@@ -150,7 +148,7 @@ class ClientWriter implements Runnable {
                             dataOut.writeUTF(hashedPW);
                             message = serverStream.readUTF();
                             System.out.println(message);
-                            if(message.equals("You are now logged in!")){
+                            if (message.equals("You are now logged in!")) {
                                 authCheck = true;
                                 loggedIn = true;
                             }
@@ -161,9 +159,165 @@ class ClientWriter implements Runnable {
                             break;
                         default:
                             System.out.println("That is not a vaid number.Do you want to 1. Sign up or 2. Sign in? 3. quit;Please choose a number");
-                            input = console.nextInt();
+                            input = sc.nextInt();
                             break;
                     }
+
+                }
+
+                while (loggedIn) {
+                    KeyPair myKP = RSAE.LoadKeyPair(username);
+                    System.out.println("What do you want to do");
+                    // TODO: Add instructions here
+
+                    String mainChoice = sc.nextLine().toUpperCase();
+
+                    switch (mainChoice) {
+                        case "COMPOSE":
+                            dataOut.writeUTF("COMPOSE");
+                            InputStream is = cwSocket.getInputStream();
+                            ObjectInputStream ois = new ObjectInputStream(is);
+                            List<HashMap<String, byte[]>> myMessageArray = (List<HashMap<String, byte[]>>) ois.readObject();
+                            List<String> userList = new ArrayList<String>();
+                            List<byte[]> keyList = new ArrayList<byte[]>();
+
+
+                            System.out.println("Please choose the number of the recipient you want to send to:");
+                            for (HashMap<String, byte[]> s : myMessageArray) {
+                                for (String key : myMessageArray.get(myMessageArray.indexOf(s)).keySet()) {
+                                    userList.add(key);
+                                    keyList.add(myMessageArray.get(myMessageArray.indexOf(s)).get(key));
+
+                                    //System.out.println("User " + myMessageArray.indexOf(s)+ ": " + key);
+                                }
+                            }
+
+                            for (String u : userList) {
+                                System.out.println("User " + userList.indexOf(u) + ": " + u);
+                            }
+                            int index = sc.nextInt();
+                            sc.nextLine();
+                            String rcptTo;
+                            String subject;
+                            String body;
+                            String DS;
+                            String encBody;
+                            String encSubject;
+                            byte[] pkByteForm;
+
+                            rcptTo = userList.get(index);
+
+                            // Get the other users public key
+                            pkByteForm = keyList.get(index);
+                            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+                            X509EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(pkByteForm);
+                            PublicKey pk = keyFactory.generatePublic(publicKeySpec);
+
+
+                            // TODO : REMOVE
+                            System.out.println("Their Public Key: " + RSAE.getHexString(pk.getEncoded()));
+                            System.out.println("my Public Key: " + RSAE.getHexString(myKP.getPublic().getEncoded()));
+
+                            System.out.println("We are now writing to: " + rcptTo);
+
+                            // Encrypt subject
+                            System.out.println("What is the subject of your message?");
+                            subject = sc.nextLine();
+                            System.out.println("Encrypting...");
+                            encSubject = RSAE.encrypt(subject, pk);
+
+
+                            System.out.println(RSAE.decrypt(encSubject,myKP.getPrivate()));
+                            System.out.println(encSubject);
+
+                            // Encrypt body
+                            System.out.println("What is the body of your message?");
+                            body = sc.nextLine();
+                            System.out.println("Encrypting...");
+                            encBody = RSAE.encrypt(body, pk);
+
+                            System.out.println(RSAE.decrypt(encBody,myKP.getPrivate()));
+                            System.out.println(encBody);
+
+                            // Get digital signature
+                            DS = RSAE.sign(body, myKP.getPrivate());
+
+
+                            // Create Full message object
+                            HashMap<String, String> fullMessage = new HashMap<String, String>();
+                            fullMessage.put("Mail From", username);
+                            fullMessage.put("Rcpt to", rcptTo);
+                            fullMessage.put("Subject", encSubject);
+                            fullMessage.put("Body", encBody);
+                            fullMessage.put("DigitalSignature", DS);
+
+                            ObjectOutputStream oos = new ObjectOutputStream(cwSocket.getOutputStream());
+                            oos.writeObject(fullMessage);
+
+                            String response = serverStream.readUTF();
+                            System.out.println(response);
+
+                            break;
+                        case "INBOX":
+                            dataOut.writeUTF("INBOX");
+                            dataOut.writeUTF(username);
+
+                            InputStream isInbox = cwSocket.getInputStream();
+                            ObjectInputStream oisInbox = new ObjectInputStream(isInbox);
+                            List<HashMap<String, String>> messagesAll = (List<HashMap<String,String>>) oisInbox.readObject();
+
+                            String id;
+                            String Sender;
+                            String Date;
+                            String Subject;
+                            String decSubject;
+                            String Body;
+                            String decBody;
+                            Boolean Signcheck;
+                            PublicKey pk2;
+
+
+                            System.out.println("Please choose the number of the recipient you want to send to:");
+                            for (HashMap<String, String> s : messagesAll){
+                                id = s.get("id");
+                                Sender = s.get("sender");
+                                Date = s.get("Date");
+                                KeyPair myKpInbox = RSAE.LoadKeyPair(username);
+                                Subject = s.get("Subject");
+                                decSubject = RSAE.decrypt(Subject,myKpInbox.getPrivate());
+//                                Body = s.get("Subject");
+//                                decBody = RSAE.decrypt(Body,myKpInbox.getPrivate());
+//
+                               System.out.println(decSubject);
+
+                                // Get the other users public key
+
+//                                KeyFactory keyFactory2 = KeyFactory.getInstance("RSA");
+//                                X509EncodedKeySpec publicKeySpec2 = new X509EncodedKeySpec();
+//
+//
+//                                pk2 = keyFactory2.generatePublic(publicKeySpec2);
+//
+//
+//                                Signcheck = RSAE.verify(decBody,s.get("Sign"),)
+
+                                System.out.println(s.get("Sign"));
+                                System.out.println(s.get("pubkey"));
+                            }
+
+
+                                break;
+                        case "DELETEALL":
+                            System.out.println("writing mail");
+                            break;
+                        case "LOGOUT":
+                            System.out.println("writing mail");
+                            break;
+                        default:
+                            System.out.println("That was not an option. Please choose an action again");
+                            break;
+                    }
+
 
                 }
 

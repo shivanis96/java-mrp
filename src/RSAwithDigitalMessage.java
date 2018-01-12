@@ -17,27 +17,8 @@ public class RSAwithDigitalMessage {
         return pair;
     }
 
-//    public static KeyPair getKeyPairFromKeyStore() throws Exception {
-//        //Generated with:
-//        //  keytool -genkeypair -alias mykey -storepass s3cr3t -keypass s3cr3t -keyalg RSA -keystore keystore.jks
-//
-//        InputStream ins = RSAwithDigitalMessage.class.getResourceAsStream("/keystore.jks");
-//
-//        KeyStore keyStore = KeyStore.getInstance("JCEKS");
-//        keyStore.load(ins, "s3cr3t".toCharArray());   //Keystore password
-//        KeyStore.PasswordProtection keyPassword =       //Key password
-//                new KeyStore.PasswordProtection("s3cr3t".toCharArray());
-//
-//        KeyStore.PrivateKeyEntry privateKeyEntry = (KeyStore.PrivateKeyEntry) keyStore.getEntry("mykey", keyPassword);
-//
-//        java.security.cert.Certificate cert = keyStore.getCertificate("mykey");
-//        PublicKey publicKey = cert.getPublicKey();
-//        PrivateKey privateKey = privateKeyEntry.getPrivateKey();
-//
-//        return new KeyPair(publicKey, privateKey);
-//    }
 
-    public static String encrypt(String plainText, PublicKey publicKey) throws Exception {
+    public String encrypt(String plainText, PublicKey publicKey) throws Exception {
         Cipher encryptCipher = Cipher.getInstance("RSA");
         encryptCipher.init(Cipher.ENCRYPT_MODE, publicKey);
 
@@ -46,7 +27,7 @@ public class RSAwithDigitalMessage {
         return Base64.getEncoder().encodeToString(cipherText);
     }
 
-    public static String decrypt(String cipherText, PrivateKey privateKey) throws Exception {
+    public String decrypt(String cipherText, PrivateKey privateKey) throws Exception {
         byte[] bytes = Base64.getDecoder().decode(cipherText);
 
         Cipher decriptCipher = Cipher.getInstance("RSA");
@@ -55,7 +36,7 @@ public class RSAwithDigitalMessage {
         return new String(decriptCipher.doFinal(bytes), UTF_8);
     }
 
-    private static void dumpKeyPair(KeyPair keyPair) {
+    private void dumpKeyPair(KeyPair keyPair) {
         PublicKey pub = keyPair.getPublic();
         System.out.println("Public Key: " + getHexString(pub.getEncoded()));
 
@@ -63,7 +44,7 @@ public class RSAwithDigitalMessage {
         System.out.println("Private Key: " + getHexString(priv.getEncoded()));
     }
 
-    private static String getHexString(byte[] b) {
+    public String getHexString(byte[] b) {
         String result = "";
         for (int i = 0; i < b.length; i++) {
             result += Integer.toString((b[i] & 0xff) + 0x100, 16).substring(1);
@@ -91,26 +72,26 @@ public class RSAwithDigitalMessage {
         fos.close();
     }
 
-    public static KeyPair LoadKeyPair(String algorithm)
+    public KeyPair LoadKeyPair(String username)
             throws IOException, NoSuchAlgorithmException,
             InvalidKeySpecException {
         // Read Public Key.
         String path = System.getProperty("user.dir");
-        File filePublicKey = new File(path + "/public.key");
-        FileInputStream fis = new FileInputStream(path + "/public.key");
+        File filePublicKey = new File(path + "/"+username+"_public.key");
+        FileInputStream fis = new FileInputStream(path + "/"+username+"_public.key");
         byte[] encodedPublicKey = new byte[(int) filePublicKey.length()];
         fis.read(encodedPublicKey);
         fis.close();
 
         // Read Private Key.
-        File filePrivateKey = new File(path + "/private.key");
-        fis = new FileInputStream(path + "/private.key");
+        File filePrivateKey = new File(path + "/"+username+ "_private.key");
+        fis = new FileInputStream(path + "/"+username+ "_private.key");
         byte[] encodedPrivateKey = new byte[(int) filePrivateKey.length()];
         fis.read(encodedPrivateKey);
         fis.close();
 
         // Generate KeyPair.
-        KeyFactory keyFactory = KeyFactory.getInstance(algorithm);
+        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
         X509EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(
                 encodedPublicKey);
         PublicKey publicKey = keyFactory.generatePublic(publicKeySpec);
@@ -122,7 +103,7 @@ public class RSAwithDigitalMessage {
         return new KeyPair(publicKey, privateKey);
     }
 
-    public static String sign(String plainText, PrivateKey privateKey) throws Exception {
+    public  String sign(String plainText, PrivateKey privateKey) throws Exception {
         Signature privateSignature = Signature.getInstance("SHA256withRSA");
         privateSignature.initSign(privateKey);
         privateSignature.update(plainText.getBytes(UTF_8));
@@ -132,7 +113,7 @@ public class RSAwithDigitalMessage {
         return Base64.getEncoder().encodeToString(signature);
     }
 
-    public static boolean verify(String plainText, String signature, PublicKey publicKey) throws Exception {
+    public boolean verify(String plainText, String signature, PublicKey publicKey) throws Exception {
         Signature publicSignature = Signature.getInstance("SHA256withRSA");
         publicSignature.initVerify(publicKey);
         publicSignature.update(plainText.getBytes(UTF_8));

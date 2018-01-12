@@ -1,5 +1,6 @@
 import java.net.*;
 import java.util.*;
+import java.io.*;
 
 public class Server {
     private int portNumber = 15882;
@@ -124,6 +125,7 @@ class ServerConnetionHandler implements Runnable {
             String name;
             String pw;
             String pwAuth;
+            String mainChoice;
             boolean authCheck = false;
 
             // This deals with login and signup process
@@ -193,24 +195,99 @@ class ServerConnetionHandler implements Runnable {
 
             }
 
+            while(loggedIn){
 
-            String heloCheck = selfs.input.readUTF();
-            if (heloCheck.contains("HELO")) {
-                boolean check2 = false;
-                while (!check2) {
-                    selfs.output.writeUTF("start");
-                    String message = selfs.input.readUTF();
-                    String[] actionCheck = message.split(":");
-                    String action = actionCheck[0];
-                    //SMTP commands using switch case
+                mainChoice = selfs.input.readUTF();
+                switch(mainChoice){
+                    case "COMPOSE":
+                        ObjectOutputStream oos = new ObjectOutputStream(selfs.soc.getOutputStream());
+                        DB_get_all_users getUsers = new DB_get_all_users();
+                        List<HashMap<String,byte[]>> usernamesList = getUsers.getUsers();
+                        oos.writeObject(usernamesList);
 
+                        // read incoming message
+
+                        InputStream is = selfs.soc.getInputStream();
+                        ObjectInputStream ois = new ObjectInputStream(is);
+                        HashMap<String,String> incomingMessage = (HashMap<String,String>) ois.readObject();
+                        String message_mail = incomingMessage.get("Mail From");
+                        String message_rcpt = incomingMessage.get("Rcpt to");
+                        String message_subject = incomingMessage.get("Subject");
+                        String message_body = incomingMessage.get("Body");
+                        String message_sign = incomingMessage.get("DigitalSignature");
+                        DB_AddMessages newMsg = new DB_AddMessages(message_rcpt,message_mail,message_subject,message_body,message_sign);
+
+                        boolean messageSuccess = newMsg.addMessage();
+
+                        if (messageSuccess){
+                            System.out.println("Message has been added");
+                            selfs.output.writeUTF("Your message has been added and encrypted.");
+
+
+                        } else{
+                            System.out.println("Message has been failed");
+                            selfs.output.writeUTF("Your message has failed. Please try again");
+                        }
+
+                        break;
+
+                    case "INBOX":
+                        String currentUser = selfs.input.readUTF();
+                        DB_get_all_messages get_all_messages = new DB_get_all_messages(currentUser);
+                        List<HashMap<String,String>> allMsgs = get_all_messages.getUsers();
+
+                        for (HashMap<String, String> s : allMsgs) {
+                            System.out.println(s.get("Sender"));
+                            DB_Get_public_key gpKEy = new DB_Get_public_key(s.get("Sender"));
+                            String publickKeyText = gpKEy.getkey();
+                            s.put("pubkey",publickKeyText);
+//                            for (String key : allMsgs.get(allMsgs.indexOf(s)).keySet()) {
+//                                System.out.println("keyset " + allMsgs.indexOf(s)+ ": " + key);
+//                            }
+                        }
+                        ObjectOutputStream oosInbox = new ObjectOutputStream(selfs.soc.getOutputStream());
+                        oosInbox.writeObject(allMsgs);
+
+                        break;
+                    case "DELETEALL":
+                        System.out.println("writing mail");
+                        break;
+                    case "LOGOUT":
+                        System.out.println("writing mail");
+                        loggedIn=false;
+                        break;
+
+                    default:
+                        System.out.println("That was not an option. Please choose an action again");
+                        break;
 
                 }
-                //close the stream once we are done with it
 
-            } else {
-                //this is hello error
+
+
             }
+
+
+            String heloCheck = selfs.input.readUTF();
+//            if (heloCheck.contains("HELO")) {
+//                boolean check2 = false;
+//                while (!check2) {
+//                    selfs.output.writeUTF("start");
+//                    String message = selfs.input.readUTF();
+//                    String[] actionCheck = message.split(":");
+//                    String action = actionCheck[0];
+//                    //SMTP commands using switch case
+//
+//
+//                }
+//                //close the stream once we are done with it
+//
+//            } else {
+//                //this is hello error
+//            }
+
+
+
         } catch (Exception except) {
             //Exception thrown (except) when something went wrong, pushing message to the console
             System.out.println("Error in ServerHandler--> " + except.getMessage());
