@@ -1,16 +1,15 @@
 import java.sql.*;
-import java.util.Arrays;
 
-public  class DB_CheckPassword {
+public  class DB_Get_public_key {
     private String username = null;
-    private String password  = null;
-    private String dbPassword = null;
+    private String pk = null;
 
-    public DB_CheckPassword(String usernameInput, String passwordInput ){
+
+    public DB_Get_public_key(String usernameInput){
         username = usernameInput;
-        password = passwordInput;
+
     }
-    public synchronized String checkPW() {
+    public synchronized String getkey() {
         Connection c = null;
         PreparedStatement stmt = null;
         try {
@@ -22,33 +21,19 @@ public  class DB_CheckPassword {
             c.setAutoCommit(false);
             System.out.println("Opened database successfully");
             //Execute a query
-            stmt = c.prepareStatement("SELECT password FROM users WHERE username='"+username+"'");
+            stmt = c.prepareStatement("SELECT public_key FROM users WHERE username='"+username+"'");
             ResultSet rs = stmt.executeQuery();
             boolean empty = true;
             while (rs.next()){
-                dbPassword = rs.getString("password");
-                empty= false;
+                pk = rs.getString("public_key");
+
             }
-            if(empty){
-                System.out.println("This user doesnt exist");
-                return "no_user";
-            }
+
             rs.close();
             stmt.close();
             c.commit();
             c.close();
-            System.out.println("Checking password");
-            System.out.println(password);
-            System.out.println(dbPassword);
-
-            if (password.equals(dbPassword)){
-                System.out.println("Password exists");
-                return "password_ok";
-            }
-            else{
-                System.out.println("Password didn't match");
-                return "wrong_password";
-            }
+           return pk;
 
         } catch (SQLException se) {
             //Handle errors for JDBC

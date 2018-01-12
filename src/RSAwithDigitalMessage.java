@@ -17,25 +17,6 @@ public class RSAwithDigitalMessage {
         return pair;
     }
 
-//    public static KeyPair getKeyPairFromKeyStore() throws Exception {
-//        //Generated with:
-//        //  keytool -genkeypair -alias mykey -storepass s3cr3t -keypass s3cr3t -keyalg RSA -keystore keystore.jks
-//
-//        InputStream ins = RSAwithDigitalMessage.class.getResourceAsStream("/keystore.jks");
-//
-//        KeyStore keyStore = KeyStore.getInstance("JCEKS");
-//        keyStore.load(ins, "s3cr3t".toCharArray());   //Keystore password
-//        KeyStore.PasswordProtection keyPassword =       //Key password
-//                new KeyStore.PasswordProtection("s3cr3t".toCharArray());
-//
-//        KeyStore.PrivateKeyEntry privateKeyEntry = (KeyStore.PrivateKeyEntry) keyStore.getEntry("mykey", keyPassword);
-//
-//        java.security.cert.Certificate cert = keyStore.getCertificate("mykey");
-//        PublicKey publicKey = cert.getPublicKey();
-//        PrivateKey privateKey = privateKeyEntry.getPrivateKey();
-//
-//        return new KeyPair(publicKey, privateKey);
-//    }
 
     public String encrypt(String plainText, PublicKey publicKey) throws Exception {
         Cipher encryptCipher = Cipher.getInstance("RSA");

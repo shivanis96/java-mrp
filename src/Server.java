@@ -230,8 +230,24 @@ class ServerConnetionHandler implements Runnable {
                         }
 
                         break;
+
                     case "INBOX":
-                        System.out.println("writing mail");
+                        String currentUser = selfs.input.readUTF();
+                        DB_get_all_messages get_all_messages = new DB_get_all_messages(currentUser);
+                        List<HashMap<String,String>> allMsgs = get_all_messages.getUsers();
+
+                        for (HashMap<String, String> s : allMsgs) {
+                            System.out.println(s.get("Sender"));
+                            DB_Get_public_key gpKEy = new DB_Get_public_key(s.get("Sender"));
+                            String publickKeyText = gpKEy.getkey();
+                            s.put("pubkey",publickKeyText);
+//                            for (String key : allMsgs.get(allMsgs.indexOf(s)).keySet()) {
+//                                System.out.println("keyset " + allMsgs.indexOf(s)+ ": " + key);
+//                            }
+                        }
+                        ObjectOutputStream oosInbox = new ObjectOutputStream(selfs.soc.getOutputStream());
+                        oosInbox.writeObject(allMsgs);
+
                         break;
                     case "DELETEALL":
                         System.out.println("writing mail");

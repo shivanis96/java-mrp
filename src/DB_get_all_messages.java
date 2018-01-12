@@ -1,15 +1,17 @@
 import java.sql.*;
 import java.util.*;
+import java.lang.*;
 
-public  class DB_get_all_users {
+public  class DB_get_all_messages {
 
+    private List<HashMap<String,String>> temp = new ArrayList<HashMap<String,String>>();
+    private String username;
 
-    private List<HashMap<String,byte[]>> temp = new ArrayList<HashMap<String,byte[]>>();
-
-    public DB_get_all_users(){
+    public DB_get_all_messages(String usernameInput){
+        username = usernameInput;
 
     }
-    public synchronized List<HashMap<String,byte[]>> getUsers() {
+    public synchronized List<HashMap<String,String>> getUsers() {
         Connection c = null;
         PreparedStatement stmt = null;
         try {
@@ -21,14 +23,18 @@ public  class DB_get_all_users {
             c.setAutoCommit(false);
             System.out.println("Opened database successfully");
             //Execute a query
-            stmt = c.prepareStatement("SELECT * FROM USERS");
+            stmt = c.prepareStatement("SELECT * FROM messages WHERE rcptto='"+username+"'");
             ResultSet rs = stmt.executeQuery();
             while (rs.next()){
                 //temp.addMessage(rs.getString("username"));
-                HashMap<String,byte[]> hMap = new HashMap<String,byte[]>();
-                byte[] pk = rs.getBytes("public_key");
-                String name = rs.getString("username");
-                hMap.put(name, pk);
+                HashMap<String,String> hMap = new HashMap<String,String>();
+               // hMap.put("id", Integer.toString(rs.getInt("id")));
+                hMap.put("id",rs.getString("id"));
+                hMap.put("Sender", rs.getString("mailfrom"));
+                hMap.put("Date", rs.getString("Date"));
+                hMap.put("Subject", rs.getString("subject"));
+                hMap.put("Body", rs.getString("body"));
+                hMap.put("Sign", rs.getString("sign"));
                 temp.add(hMap);
             }
             rs.close();
