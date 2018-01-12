@@ -21,9 +21,9 @@ public class Messages {
                     "MAILFROM VARCHAR(255) UNIQUE NOT NULL," +
                     "DATE DATE NOT NULL," +
                     "TIME TIME NOT NULL," +
-                    "SIGN VARCHAR(255) NOT NULL," +
-                    "SUBJECT VARCHAR(255) NOT NULL," +
-                    "BODY VARCHAR(255) NOT NULL)";
+                    "SIGN TEXT NOT NULL," +
+                    "SUBJECT TEXT NOT NULL," +
+                    "BODY TEXT NOT NULL)";
 
             stmt.executeUpdate(sql);
             stmt.close();

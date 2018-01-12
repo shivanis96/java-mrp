@@ -9,12 +9,12 @@ public  class DB_AddMessages {
     private String sign = null;
 
 
-    public DB_AddMessages(String rcptto, String mailfrom,String subject, String body, String sign){
-          rcptto = rcptto;
-          mailfrom = mailfrom;
-          subject = subject;
-          body = body;
-          sign = sign;
+    public DB_AddMessages(String rcpttoInput, String mailfromInput,String subjectInput, String bodyInput, String signInput){
+          rcptto = rcpttoInput;
+          mailfrom = mailfromInput;
+          subject = subjectInput;
+          body = bodyInput;
+          sign = signInput;
     }
     public synchronized boolean addMessage() {
         Connection c = null;
