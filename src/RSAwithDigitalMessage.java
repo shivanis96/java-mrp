@@ -84,8 +84,8 @@ public class RSAwithDigitalMessage {
         fis.close();
 
         // Read Private Key.
-        File filePrivateKey = new File(path + "/private.key");
-        fis = new FileInputStream(path + "/private.key");
+        File filePrivateKey = new File(path + "/"+username+ "_private.key");
+        fis = new FileInputStream(path + "/"+username+ "_private.key");
         byte[] encodedPrivateKey = new byte[(int) filePrivateKey.length()];
         fis.read(encodedPrivateKey);
         fis.close();
