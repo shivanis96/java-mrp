@@ -1,4 +1,5 @@
 import java.io.*;
+import java.lang.reflect.Array;
 import java.net.*;
 import java.util.*;
 import javax.crypto.Cipher;
@@ -7,6 +8,8 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
+import java.lang.Object.*;
+
 
 public class Client {
 
@@ -264,7 +267,7 @@ class ClientWriter implements Runnable {
 
                             InputStream isInbox = cwSocket.getInputStream();
                             ObjectInputStream oisInbox = new ObjectInputStream(isInbox);
-                            List<HashMap<String, String>> messagesAll = (List<HashMap<String, String>>) oisInbox.readObject();
+                            List<HashMap<String, Object>> messagesAll = (List<HashMap<String, Object>>) oisInbox.readObject();
 
                             String id;
                             String Sender;
@@ -274,25 +277,41 @@ class ClientWriter implements Runnable {
                             String Body;
                             String decBody;
                             Boolean Signcheck;
+                            Object KeyObject;
+                            byte[] Publicbytearray;
                             PublicKey pk2;
 
 
                             System.out.println("Here are all your messages: ");
-                            for (HashMap<String, String> s : messagesAll) {
-                                id = s.get("id");
-                                Sender = s.get("Sender");
-                                Date = s.get("Date");
+                            for (HashMap<String, Object> s : messagesAll) {
+                                id = s.get("id").toString();
+                                Sender = s.get("Sender").toString();
+                                Date = s.get("Date").toString();
                                 System.out.println("ID: " + id + "\tSender: " + Sender + "\tDate: " + Date);
                                 KeyPair myKpInbox = RSAE.LoadKeyPair(username);
-                                Subject = s.get("Subject");
+                                Subject = s.get("Subject").toString();
                                 decSubject = RSAE.decrypt(Subject, myKpInbox.getPrivate());
-                                Body = s.get("Body");
+                                Body = s.get("Body").toString();
+
+                                KeyObject = s.get("pubkey");
+                                Publicbytearray = serialize(KeyObject);
+                                System.out.println(KeyObject.toString());
+
+//                                ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+//                                ObjectOutputStream objStream = new ObjectOutputStream(byteStream);
+//                                objStream.writeObject(KeyObject);
+//                                Publicbytearray=byteStream.toByteArray();
+//
+//                                // Get the other users public key
+//                                KeyFactory keyFactory2 = KeyFactory.getInstance("RSA");
+//                                X509EncodedKeySpec publicKeySpec2 = new X509EncodedKeySpec(Publicbytearray);
+//                                pk2 = keyFactory2.generatePublic(publicKeySpec2);
+
 
                                 decBody = RSAE.decrypt(Body, myKpInbox.getPrivate());
                                 System.out.println("Subject: " + decSubject);
                                 System.out.println("Body: " + decBody);
-//                                System.out.println(s.get("Sign"));
-//                                System.out.println(s.get("pubkey"));
+//                                System.out.println(Arrays.toString(Publicbytearray));
                             }
 
 
@@ -327,6 +346,19 @@ class ClientWriter implements Runnable {
         }
 
 
+    }
+    public static byte[] serialize(Object obj) throws IOException {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        ObjectOutputStream os = new ObjectOutputStream(out);
+        os.writeObject(obj);
+        return out.toByteArray();
+    }
+    public static Object deserialize(byte[] data) throws IOException, ClassNotFoundException {
+        ByteArrayInputStream in = new ByteArrayInputStream(data);
+        ObjectInputStream is = new ObjectInputStream(in);
+        in.close();
+        is.close();
+        return is.readObject();
     }
 }
 

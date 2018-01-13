@@ -4,14 +4,14 @@ import java.lang.*;
 
 public  class DB_get_all_messages {
 
-    private List<HashMap<String,String>> temp = new ArrayList<HashMap<String,String>>();
+    private List<HashMap<String,Object>> temp = new ArrayList<HashMap<String,Object>>();
     private String username;
 
     public DB_get_all_messages(String usernameInput){
         username = usernameInput;
 
     }
-    public synchronized List<HashMap<String,String>> getUsers() {
+    public synchronized List<HashMap<String,Object>> getUsers() {
         Connection c = null;
         PreparedStatement stmt = null;
         try {
@@ -27,7 +27,7 @@ public  class DB_get_all_messages {
             ResultSet rs = stmt.executeQuery();
             while (rs.next()){
                 //temp.addMessage(rs.getString("username"));
-                HashMap<String,String> hMap = new HashMap<String,String>();
+                HashMap<String,Object> hMap = new HashMap<String,Object>();
                // hMap.put("id", Integer.toString(rs.getInt("id")));
                 hMap.put("id",rs.getString("id"));
                 hMap.put("Sender", rs.getString("mailfrom"));

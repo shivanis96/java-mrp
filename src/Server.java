@@ -234,16 +234,21 @@ class ServerConnetionHandler implements Runnable {
                     case "INBOX":
                         String currentUser = selfs.input.readUTF();
                         DB_get_all_messages get_all_messages = new DB_get_all_messages(currentUser);
-                        List<HashMap<String,String>> allMsgs = get_all_messages.getUsers();
+                        List<HashMap<String,Object>> allMsgs = get_all_messages.getUsers();
 
-                        for (HashMap<String, String> s : allMsgs) {
+                        for (HashMap<String, Object> s : allMsgs) {
                             System.out.println(s.get("Sender"));
-                            DB_Get_public_key gpKEy = new DB_Get_public_key(s.get("Sender"));
-                            String publickKeyText = gpKEy.getkey();
+                            DB_Get_public_key gpKEy = new DB_Get_public_key(s.get("Sender").toString());
+                            byte[] publickKeyText = gpKEy.getkey();
+                            System.out.println(Arrays.toString(publickKeyText));
+//                            deserialize(publickKeyText);
+
+//                            ByteArrayInputStream byteStream = new ByteArrayInputStream(publickKeyText);
+//                            ObjectInputStream objStream = new ObjectInputStream(byteStream);
+//                            Object keyObj = objStream.readObject();
+
                             s.put("pubkey",publickKeyText);
-//                            for (String key : allMsgs.get(allMsgs.indexOf(s)).keySet()) {
-//                                System.out.println("keyset " + allMsgs.indexOf(s)+ ": " + key);
-//                            }
+
                         }
                         ObjectOutputStream oosInbox = new ObjectOutputStream(selfs.soc.getOutputStream());
                         oosInbox.writeObject(allMsgs);
