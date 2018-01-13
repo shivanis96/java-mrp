@@ -7,6 +7,7 @@ public class MailTemplate implements Serializable {
     private String body;
     private String digitalSignature;
     private byte[] publickey;
+    private String date;
 
     public MailTemplate( String mailFrom, String rcptto, String subject,String body,String digitalSignature){
         this.mailFrom = mailFrom;
@@ -14,6 +15,24 @@ public class MailTemplate implements Serializable {
         this.subject = subject;
         this.body = body;
         this.digitalSignature = digitalSignature;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
+    }
+
+    public MailTemplate(String mailFrom, String rcptto, String subject, String body, String digitalSignature, String date){
+        this.mailFrom = mailFrom;
+        this.rcptto = rcptto;
+        this.subject = subject;
+        this.body = body;
+        this.digitalSignature = digitalSignature;
+        this.date=date;
+
     }
 
     public String getMailFrom() {

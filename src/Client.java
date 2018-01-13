@@ -249,14 +249,6 @@ class ClientWriter implements Runnable {
                             MailTemplate mail = new MailTemplate(username,rcptTo,encSubject,encBody,DS);
 
 
-                            // Create Full message object
-//                            HashMap<String, String> fullMessage = new HashMap<String, String>();
-//                            fullMessage.put("Mail From", username);
-//                            fullMessage.put("Rcpt to", rcptTo);
-//                            fullMessage.put("Subject", encSubject);
-//                            fullMessage.put("Body", encBody);
-//                            fullMessage.put("DigitalSignature", DS);
-
                             ObjectOutputStream oos = new ObjectOutputStream(cwSocket.getOutputStream());
                             oos.writeObject(mail);
                             oos.flush();
@@ -271,51 +263,49 @@ class ClientWriter implements Runnable {
 
                             InputStream isInbox = cwSocket.getInputStream();
                             ObjectInputStream oisInbox = new ObjectInputStream(isInbox);
-                            List<HashMap<String, Object>> messagesAll = (List<HashMap<String, Object>>) oisInbox.readObject();
+                            List<HashMap<Integer,MailTemplate>> messagesAll = ( List<HashMap<Integer,MailTemplate>>) oisInbox.readObject();
 
-                            String id;
+                            int id;
                             String Sender;
                             String Date;
                             String Subject;
                             String decSubject;
                             String Body;
                             String decBody;
+                            String sign;
                             Boolean Signcheck;
-                            Object KeyObject;
                             byte[] Publicbytearray;
                             PublicKey pk2;
 
 
                             System.out.println("Here are all your messages: ");
-                            for (HashMap<String, Object> s : messagesAll) {
-                                id = s.get("id").toString();
-                                Sender = s.get("Sender").toString();
-                                Date = s.get("Date").toString();
-                                System.out.println("ID: " + id + "\tSender: " + Sender + "\tDate: " + Date);
-                                KeyPair myKpInbox = RSAE.LoadKeyPair(username);
-                                Subject = s.get("Subject").toString();
-                                decSubject = RSAE.decrypt(Subject, myKpInbox.getPrivate());
-                                Body = s.get("Body").toString();
+                            for (HashMap<Integer,MailTemplate> s : messagesAll) {
+                                for ( Integer i : s.keySet()){
+                                    id = i;
+                                    Sender = s.get(i).getMailFrom();
+                                    Date = s.get(i).getDate();
+                                    System.out.println("ID: " + id + "\tSender: " + Sender + "\tDate: " + Date);
+                                    KeyPair myKpInbox = RSAE.LoadKeyPair(username);
+                                    Subject = s.get(i).getSubject();
+                                    decSubject = RSAE.decrypt(Subject, myKpInbox.getPrivate());
+                                    Body = s.get(i).getBody();
+                                    decBody = RSAE.decrypt(Body, myKpInbox.getPrivate());
+                                    Publicbytearray = s.get(i).getPublickey();
+                                    sign = s.get(i).getDigitalSignature();
+                                    KeyFactory keyFactory2 = KeyFactory.getInstance("RSA");
+                                    X509EncodedKeySpec publicKeySpec2 = new X509EncodedKeySpec(Publicbytearray);
+                                    pk2 = keyFactory2.generatePublic(publicKeySpec2);
+                                    Signcheck = RSAE.verify(decBody,sign,pk2);
 
-                                KeyObject = s.get("pubkey");
-                                Publicbytearray = serialize(KeyObject);
-                                System.out.println(KeyObject.toString());
+                                    System.out.println("Verified: " + Signcheck);
 
-//                                ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
-//                                ObjectOutputStream objStream = new ObjectOutputStream(byteStream);
-//                                objStream.writeObject(KeyObject);
-//                                Publicbytearray=byteStream.toByteArray();
-//
-//                                // Get the other users public key
-//                                KeyFactory keyFactory2 = KeyFactory.getInstance("RSA");
-//                                X509EncodedKeySpec publicKeySpec2 = new X509EncodedKeySpec(Publicbytearray);
-//                                pk2 = keyFactory2.generatePublic(publicKeySpec2);
+                                    System.out.println("Subject: " + decSubject);
+                                    System.out.println("Body: " + decBody);
 
 
-                                decBody = RSAE.decrypt(Body, myKpInbox.getPrivate());
-                                System.out.println("Subject: " + decSubject);
-                                System.out.println("Body: " + decBody);
-//                                System.out.println(Arrays.toString(Publicbytearray));
+
+                                }
+
                             }
 
 
