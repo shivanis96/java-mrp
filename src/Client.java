@@ -230,8 +230,6 @@ class ClientWriter implements Runnable {
                             encSubject = RSAE.encrypt(subject, pk);
 
 
-                            System.out.println(RSAE.decrypt(encSubject, myKP.getPrivate()));
-                            System.out.println(encSubject);
 
                             // Encrypt body
                             System.out.println("What is the body of your message?");
