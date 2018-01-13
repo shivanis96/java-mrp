@@ -2,14 +2,14 @@ import java.sql.*;
 
 public  class DB_Get_public_key {
     private String username = null;
-    private String pk = null;
+    private byte[] pk = null;
 
 
     public DB_Get_public_key(String usernameInput){
         username = usernameInput;
 
     }
-    public synchronized String getkey() {
+    public synchronized byte[] getkey() {
         Connection c = null;
         PreparedStatement stmt = null;
         try {
@@ -25,7 +25,7 @@ public  class DB_Get_public_key {
             ResultSet rs = stmt.executeQuery();
             boolean empty = true;
             while (rs.next()){
-                pk = rs.getString("public_key");
+                pk = rs.getBytes("public_key");
 
             }
 
@@ -40,14 +40,14 @@ public  class DB_Get_public_key {
             String error = se.getMessage();
             System.out.println(error);
             System.out.println("Records created unsuccessfully");
-            return "error";
+            return pk;
 
         } catch (Exception e) {
             e.printStackTrace();
             System.err.println(e.getMessage());
             System.exit(0);
             System.out.println("Records created unsuccessfully");
-            return "error";
+            return pk;
         }
 
     }

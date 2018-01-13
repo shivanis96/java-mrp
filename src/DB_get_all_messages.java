@@ -4,14 +4,14 @@ import java.lang.*;
 
 public  class DB_get_all_messages {
 
-    private List<HashMap<String,String>> temp = new ArrayList<HashMap<String,String>>();
+    private List<HashMap<Integer,MailTemplate>> temp = new ArrayList<HashMap<Integer,MailTemplate>>();
     private String username;
 
     public DB_get_all_messages(String usernameInput){
         username = usernameInput;
 
     }
-    public synchronized List<HashMap<String,String>> getUsers() {
+    public synchronized List<HashMap<Integer,MailTemplate>> getUsers() {
         Connection c = null;
         PreparedStatement stmt = null;
         try {
@@ -26,15 +26,18 @@ public  class DB_get_all_messages {
             stmt = c.prepareStatement("SELECT * FROM messages WHERE rcptto='"+username+"'");
             ResultSet rs = stmt.executeQuery();
             while (rs.next()){
-                //temp.addMessage(rs.getString("username"));
-                HashMap<String,String> hMap = new HashMap<String,String>();
-               // hMap.put("id", Integer.toString(rs.getInt("id")));
-                hMap.put("id",rs.getString("id"));
-                hMap.put("Sender", rs.getString("mailfrom"));
-                hMap.put("Date", rs.getString("Date"));
-                hMap.put("Subject", rs.getString("subject"));
-                hMap.put("Body", rs.getString("body"));
-                hMap.put("Sign", rs.getString("sign"));
+
+                HashMap<Integer,MailTemplate> hMap = new HashMap<Integer, MailTemplate>();
+                Integer id = rs.getInt("id");
+                String mailfrom =  rs.getString("mailfrom");
+                String rcptto = rs.getString("rcptto");
+                String datestring = rs.getString("Date");
+                String subject = rs.getString("subject");
+                String body = rs.getString("body");
+                String ds = rs.getString("sign");
+
+                MailTemplate newMail = new MailTemplate(mailfrom,rcptto,subject,body,ds,datestring);
+                hMap.put(id,newMail);
                 temp.add(hMap);
             }
             rs.close();

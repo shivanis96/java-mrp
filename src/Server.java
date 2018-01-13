@@ -209,12 +209,14 @@ class ServerConnetionHandler implements Runnable {
 
                         InputStream is = selfs.soc.getInputStream();
                         ObjectInputStream ois = new ObjectInputStream(is);
-                        HashMap<String,String> incomingMessage = (HashMap<String,String>) ois.readObject();
-                        String message_mail = incomingMessage.get("Mail From");
-                        String message_rcpt = incomingMessage.get("Rcpt to");
-                        String message_subject = incomingMessage.get("Subject");
-                        String message_body = incomingMessage.get("Body");
-                        String message_sign = incomingMessage.get("DigitalSignature");
+
+                        MailTemplate incomingMessage = (MailTemplate)ois.readObject();
+                        System.out.println("Do i get here");
+                        String message_mail = incomingMessage.getMailFrom();
+                        String message_rcpt = incomingMessage.getRcptto();
+                        String message_subject = incomingMessage.getSubject();
+                        String message_body = incomingMessage.getBody();
+                        String message_sign = incomingMessage.getDigitalSignature();
                         DB_AddMessages newMsg = new DB_AddMessages(message_rcpt,message_mail,message_subject,message_body,message_sign);
 
                         boolean messageSuccess = newMsg.addMessage();
@@ -234,16 +236,15 @@ class ServerConnetionHandler implements Runnable {
                     case "INBOX":
                         String currentUser = selfs.input.readUTF();
                         DB_get_all_messages get_all_messages = new DB_get_all_messages(currentUser);
-                        List<HashMap<String,String>> allMsgs = get_all_messages.getUsers();
+                        List<HashMap<Integer,MailTemplate>> allMsgs = get_all_messages.getUsers();
 
-                        for (HashMap<String, String> s : allMsgs) {
-                            System.out.println(s.get("Sender"));
-                            DB_Get_public_key gpKEy = new DB_Get_public_key(s.get("Sender"));
-                            String publickKeyText = gpKEy.getkey();
-                            s.put("pubkey",publickKeyText);
-//                            for (String key : allMsgs.get(allMsgs.indexOf(s)).keySet()) {
-//                                System.out.println("keyset " + allMsgs.indexOf(s)+ ": " + key);
-//                            }
+                        for (HashMap<Integer,MailTemplate> s : allMsgs) {
+                            for (Integer i : s.keySet()){
+                                String Sender = s.get(i).getMailFrom();
+                                DB_Get_public_key gpKEy = new DB_Get_public_key(Sender);
+                                byte[] publickKeyText = gpKEy.getkey();
+                                s.get(i).setPublickey(publickKeyText);
+                            }
                         }
                         ObjectOutputStream oosInbox = new ObjectOutputStream(selfs.soc.getOutputStream());
                         oosInbox.writeObject(allMsgs);
