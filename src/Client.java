@@ -230,8 +230,6 @@ class ClientWriter implements Runnable {
                             encSubject = RSAE.encrypt(subject, pk);
 
 
-                            System.out.println(RSAE.decrypt(encSubject, myKP.getPrivate()));
-                            System.out.println(encSubject);
 
                             // Encrypt body
                             System.out.println("What is the body of your message?");
@@ -239,8 +237,6 @@ class ClientWriter implements Runnable {
                             System.out.println("Encrypting...");
                             encBody = RSAE.encrypt(body, pk);
 
-                            System.out.println(RSAE.decrypt(encBody, myKP.getPrivate()));
-                            System.out.println(encBody);
 
                             // Get digital signature
                             DS = RSAE.sign(body, myKP.getPrivate());
