@@ -209,12 +209,14 @@ class ServerConnetionHandler implements Runnable {
 
                         InputStream is = selfs.soc.getInputStream();
                         ObjectInputStream ois = new ObjectInputStream(is);
-                        HashMap<String,String> incomingMessage = (HashMap<String,String>) ois.readObject();
-                        String message_mail = incomingMessage.get("Mail From");
-                        String message_rcpt = incomingMessage.get("Rcpt to");
-                        String message_subject = incomingMessage.get("Subject");
-                        String message_body = incomingMessage.get("Body");
-                        String message_sign = incomingMessage.get("DigitalSignature");
+
+                        MailTemplate incomingMessage = (MailTemplate)ois.readObject();
+                        System.out.println("Do i get here");
+                        String message_mail = incomingMessage.getMailFrom();
+                        String message_rcpt = incomingMessage.getRcptto();
+                        String message_subject = incomingMessage.getSubject();
+                        String message_body = incomingMessage.getBody();
+                        String message_sign = incomingMessage.getDigitalSignature();
                         DB_AddMessages newMsg = new DB_AddMessages(message_rcpt,message_mail,message_subject,message_body,message_sign);
 
                         boolean messageSuccess = newMsg.addMessage();

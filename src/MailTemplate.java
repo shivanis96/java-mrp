@@ -1,4 +1,6 @@
-public class MailTemplate {
+import java.io.Serializable;
+
+public class MailTemplate implements Serializable {
     private String mailFrom;
     private String rcptto;
     private String subject;

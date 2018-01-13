@@ -245,17 +245,21 @@ class ClientWriter implements Runnable {
                             // Get digital signature
                             DS = RSAE.sign(body, myKP.getPrivate());
 
+                            // Create Mail object and send over to other side;
+                            MailTemplate mail = new MailTemplate(username,rcptTo,encSubject,encBody,DS);
+
 
                             // Create Full message object
-                            HashMap<String, String> fullMessage = new HashMap<String, String>();
-                            fullMessage.put("Mail From", username);
-                            fullMessage.put("Rcpt to", rcptTo);
-                            fullMessage.put("Subject", encSubject);
-                            fullMessage.put("Body", encBody);
-                            fullMessage.put("DigitalSignature", DS);
+//                            HashMap<String, String> fullMessage = new HashMap<String, String>();
+//                            fullMessage.put("Mail From", username);
+//                            fullMessage.put("Rcpt to", rcptTo);
+//                            fullMessage.put("Subject", encSubject);
+//                            fullMessage.put("Body", encBody);
+//                            fullMessage.put("DigitalSignature", DS);
 
                             ObjectOutputStream oos = new ObjectOutputStream(cwSocket.getOutputStream());
-                            oos.writeObject(fullMessage);
+                            oos.writeObject(mail);
+                            oos.flush();
 
                             String response = serverStream.readUTF();
                             System.out.println(response);
