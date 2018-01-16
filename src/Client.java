@@ -230,7 +230,6 @@ class ClientWriter implements Runnable {
                             encSubject = RSAE.encrypt(subject, pk);
 
 
-
                             // Encrypt body
                             System.out.println("What is the body of your message?");
                             body = sc.nextLine();
@@ -242,7 +241,7 @@ class ClientWriter implements Runnable {
                             DS = RSAE.sign(body, myKP.getPrivate());
 
                             // Create Mail object and send over to other side;
-                            MailTemplate mail = new MailTemplate(username,rcptTo,encSubject,encBody,DS);
+                            MailTemplate mail = new MailTemplate(username, rcptTo, encSubject, encBody, DS);
 
 
                             ObjectOutputStream oos = new ObjectOutputStream(cwSocket.getOutputStream());
@@ -259,7 +258,7 @@ class ClientWriter implements Runnable {
 
                             InputStream isInbox = cwSocket.getInputStream();
                             ObjectInputStream oisInbox = new ObjectInputStream(isInbox);
-                            List<HashMap<Integer,MailTemplate>> messagesAll = ( List<HashMap<Integer,MailTemplate>>) oisInbox.readObject();
+                            List<HashMap<Integer, MailTemplate>> messagesAll = (List<HashMap<Integer, MailTemplate>>) oisInbox.readObject();
 
                             int id;
                             String Sender;
@@ -273,31 +272,33 @@ class ClientWriter implements Runnable {
                             byte[] Publicbytearray;
                             PublicKey pk2;
 
+                            if (messagesAll.isEmpty()) {
+                                System.out.println("There are no messages in your inbox.");
+                            } else {
+                                System.out.println("Here are all your messages: ");
+                                for (HashMap<Integer, MailTemplate> s : messagesAll) {
+                                    for (Integer i : s.keySet()) {
+                                        id = i;
+                                        Sender = s.get(i).getMailFrom();
+                                        Date = s.get(i).getDate();
+                                        System.out.println("ID: " + id + "\tSender: " + Sender + "\tDate: " + Date);
+                                        KeyPair myKpInbox = RSAE.LoadKeyPair(username);
+                                        Subject = s.get(i).getSubject();
+                                        decSubject = RSAE.decrypt(Subject, myKpInbox.getPrivate());
+                                        Body = s.get(i).getBody();
+                                        decBody = RSAE.decrypt(Body, myKpInbox.getPrivate());
+                                        Publicbytearray = s.get(i).getPublickey();
+                                        sign = s.get(i).getDigitalSignature();
+                                        KeyFactory keyFactory2 = KeyFactory.getInstance("RSA");
+                                        X509EncodedKeySpec publicKeySpec2 = new X509EncodedKeySpec(Publicbytearray);
+                                        pk2 = keyFactory2.generatePublic(publicKeySpec2);
+                                        Signcheck = RSAE.verify(decBody, sign, pk2);
 
-                            System.out.println("Here are all your messages: ");
-                            for (HashMap<Integer,MailTemplate> s : messagesAll) {
-                                for ( Integer i : s.keySet()){
-                                    id = i;
-                                    Sender = s.get(i).getMailFrom();
-                                    Date = s.get(i).getDate();
-                                    System.out.println("ID: " + id + "\tSender: " + Sender + "\tDate: " + Date);
-                                    KeyPair myKpInbox = RSAE.LoadKeyPair(username);
-                                    Subject = s.get(i).getSubject();
-                                    decSubject = RSAE.decrypt(Subject, myKpInbox.getPrivate());
-                                    Body = s.get(i).getBody();
-                                    decBody = RSAE.decrypt(Body, myKpInbox.getPrivate());
-                                    Publicbytearray = s.get(i).getPublickey();
-                                    sign = s.get(i).getDigitalSignature();
-                                    KeyFactory keyFactory2 = KeyFactory.getInstance("RSA");
-                                    X509EncodedKeySpec publicKeySpec2 = new X509EncodedKeySpec(Publicbytearray);
-                                    pk2 = keyFactory2.generatePublic(publicKeySpec2);
-                                    Signcheck = RSAE.verify(decBody,sign,pk2);
+                                        System.out.println("Verified: " + Signcheck);
 
-                                    System.out.println("Verified: " + Signcheck);
-
-                                    System.out.println("Subject: " + decSubject);
-                                    System.out.println("Body: " + decBody);
-
+                                        System.out.println("Subject: " + decSubject);
+                                        System.out.println("Body: " + decBody);
+                                    }
 
 
                                 }
@@ -307,7 +308,13 @@ class ClientWriter implements Runnable {
 
                             break;
                         case "DELETEALL":
-                            System.out.println("writing mail");
+                            dataOut.writeUTF("DELETEALL");
+                            dataOut.writeUTF(username);
+
+                            String deleteMessage = serverStream.readUTF();
+                            System.out.println(deleteMessage);
+
+
                             break;
                         case "LOGOUT":
                             System.out.println("writing mail");
@@ -337,12 +344,14 @@ class ClientWriter implements Runnable {
 
 
     }
+
     public static byte[] serialize(Object obj) throws IOException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         ObjectOutputStream os = new ObjectOutputStream(out);
         os.writeObject(obj);
         return out.toByteArray();
     }
+
     public static Object deserialize(byte[] data) throws IOException, ClassNotFoundException {
         ByteArrayInputStream in = new ByteArrayInputStream(data);
         ObjectInputStream is = new ObjectInputStream(in);

@@ -251,8 +251,13 @@ class ServerConnetionHandler implements Runnable {
 
                         break;
                     case "DELETEALL":
-                        System.out.println("writing mail");
+                        String user = selfs.input.readUTF();
+                        DB_delete_all_messages delete_all_messages = new DB_delete_all_messages(user);
+                        String deleteMsgs = delete_all_messages.deleteUsers();
+
+                        selfs.output.writeUTF(deleteMsgs);
                         break;
+
                     case "LOGOUT":
                         System.out.println("writing mail");
                         loggedIn=false;
