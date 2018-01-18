@@ -211,7 +211,6 @@ class ServerConnetionHandler implements Runnable {
                         ObjectInputStream ois = new ObjectInputStream(is);
 
                         MailTemplate incomingMessage = (MailTemplate)ois.readObject();
-                        System.out.println("Do i get here");
                         String message_mail = incomingMessage.getMailFrom();
                         String message_rcpt = incomingMessage.getRcptto();
                         String message_subject = incomingMessage.getSubject();
@@ -242,8 +241,8 @@ class ServerConnetionHandler implements Runnable {
                             for (Integer i : s.keySet()){
                                 String Sender = s.get(i).getMailFrom();
                                 DB_Get_public_key gpKEy = new DB_Get_public_key(Sender);
-                                byte[] publickKeyText = gpKEy.getkey();
-                                s.get(i).setPublickey(publickKeyText);
+                                byte[] publicKeyText = gpKEy.getkey();
+                                s.get(i).setPublickey(publicKeyText);
                             }
                         }
                         ObjectOutputStream oosInbox = new ObjectOutputStream(selfs.soc.getOutputStream());

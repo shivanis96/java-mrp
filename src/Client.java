@@ -187,9 +187,9 @@ class ClientWriter implements Runnable {
 
                             System.out.println("Please choose the number of the recipient you want to send to:");
                             for (HashMap<String, byte[]> s : myMessageArray) {
-                                for (String key : myMessageArray.get(myMessageArray.indexOf(s)).keySet()) {
+                                for (String key : s.keySet()) {
                                     userList.add(key);
-                                    keyList.add(myMessageArray.get(myMessageArray.indexOf(s)).get(key));
+                                    keyList.add(s.get(key));
 
                                     //System.out.println("User " + myMessageArray.indexOf(s)+ ": " + key);
                                 }
@@ -285,25 +285,52 @@ class ClientWriter implements Runnable {
                                         KeyPair myKpInbox = RSAE.LoadKeyPair(username);
                                         Subject = s.get(i).getSubject();
                                         decSubject = RSAE.decrypt(Subject, myKpInbox.getPrivate());
-                                        Body = s.get(i).getBody();
-                                        decBody = RSAE.decrypt(Body, myKpInbox.getPrivate());
-                                        Publicbytearray = s.get(i).getPublickey();
-                                        sign = s.get(i).getDigitalSignature();
-                                        KeyFactory keyFactory2 = KeyFactory.getInstance("RSA");
-                                        X509EncodedKeySpec publicKeySpec2 = new X509EncodedKeySpec(Publicbytearray);
-                                        pk2 = keyFactory2.generatePublic(publicKeySpec2);
-                                        Signcheck = RSAE.verify(decBody, sign, pk2);
-
-                                        System.out.println("Verified: " + Signcheck);
 
                                         System.out.println("Subject: " + decSubject);
-                                        System.out.println("Body: " + decBody);
                                     }
+                                }
 
+                                System.out.println("Choose the ID of the message you want to view: ");
+                                System.out.print("OR enter 0 for more options");
+
+
+                                Scanner sum = new Scanner(System.in);
+                                int viewMessage = sum.nextInt();
+                                sum.nextLine();
+
+                                if (viewMessage > 0) {
+                                    System.out.println(viewMessage + " " + "message:");
+                                    for (HashMap<Integer, MailTemplate> s : messagesAll) {
+                                        for (Integer i : s.keySet()) {
+                                            id = i;
+                                            Sender = s.get(i).getMailFrom();
+                                            Date = s.get(i).getDate();
+                                            System.out.println("ID: " + id + "\tSender: " + Sender + "\tDate: " + Date);
+                                            KeyPair myKpInbox = RSAE.LoadKeyPair(username);
+                                            Subject = s.get(i).getSubject();
+                                            decSubject = RSAE.decrypt(Subject, myKpInbox.getPrivate());
+                                            Body = s.get(i).getBody();
+                                            decBody = RSAE.decrypt(Body, myKpInbox.getPrivate());
+                                            Publicbytearray = s.get(i).getPublickey();
+                                            sign = s.get(i).getDigitalSignature();
+                                            KeyFactory keyFactory2 = KeyFactory.getInstance("RSA");
+                                            X509EncodedKeySpec publicKeySpec2 = new X509EncodedKeySpec(Publicbytearray);
+                                            pk2 = keyFactory2.generatePublic(publicKeySpec2);
+                                            Signcheck = RSAE.verify(decBody, sign, pk2);
+
+                                            System.out.println("Verified: " + Signcheck);
+                                            System.out.println("Subject: " + decSubject);
+                                            System.out.println("Body: " + decBody);
+                                        }
+
+
+                                    }
 
                                 }
 
                             }
+
+
 
 
                             break;
