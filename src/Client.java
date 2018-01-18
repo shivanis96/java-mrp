@@ -290,8 +290,9 @@ class ClientWriter implements Runnable {
                                     }
                                 }
 
-                                System.out.println("Choose the ID of the message you want to view: ");
-                                System.out.print("OR enter 0 for more options");
+                                System.out.println();
+                                System.out.print("Choose the ID of the message you want to view: ");
+                                System.out.println("OR enter 0 for more options");
 
 
                                 Scanner sum = new Scanner(System.in);
@@ -299,7 +300,7 @@ class ClientWriter implements Runnable {
                                 sum.nextLine();
 
                                 if (viewMessage > 0) {
-                                    System.out.println(viewMessage + " " + "message:");
+                                    System.out.println("This is " + viewMessage + "'s"+" " + "message:");
                                     for (HashMap<Integer, MailTemplate> s : messagesAll) {
                                         for (Integer i : s.keySet()) {
                                             id = i;
@@ -325,8 +326,18 @@ class ClientWriter implements Runnable {
 
 
                                     }
+//                                    String nextChoice = sc.nextLine().toUpperCase();
+//
+//                                    System.out.println("Would you like to Reply or Tag?");
+//                                    switch (nextChoice){
+//                                        case "REPLY":
+//                                            dataOut.writeUTF("REPLYS");
+//                                    }
 
                                 }
+//                                else if (viewMessage == 0){
+//
+//                                }
 
                             }
 
